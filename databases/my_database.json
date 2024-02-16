@@ -1,0 +1,366 @@
+{
+    "player": {
+        "1": {
+            "first_name": "Jörg",
+            "games_paused": 0,
+            "games_played": 0,
+            "last_name": "1",
+            "player_id": "player_Player1",
+            "rating_snapshot": "rating_snap_9c235efa"
+        },
+        "10": {
+            "first_name": "Dirk",
+            "games_paused": 0,
+            "games_played": 0,
+            "last_name": "1",
+            "player_id": "player_Player10",
+            "rating_snapshot": "rating_snap_b28b84c2"
+        },
+        "11": {
+            "first_name": "Sabine",
+            "games_paused": 0,
+            "games_played": 0,
+            "last_name": "1",
+            "player_id": "player_Player11",
+            "rating_snapshot": "rating_snap_678df254"
+        },
+        "12": {
+            "first_name": "Susanne",
+            "games_paused": 0,
+            "games_played": 0,
+            "last_name": "1",
+            "player_id": "player_Player12",
+            "rating_snapshot": "rating_snap_1044813f"
+        },
+        "13": {
+            "first_name": "Petra",
+            "games_paused": 0,
+            "games_played": 0,
+            "last_name": "1",
+            "player_id": "player_Player13",
+            "rating_snapshot": "rating_snap_629c643f"
+        },
+        "14": {
+            "first_name": "Monika",
+            "games_paused": 0,
+            "games_played": 0,
+            "last_name": "1",
+            "player_id": "player_Player14",
+            "rating_snapshot": "rating_snap_f5ba4b27"
+        },
+        "15": {
+            "first_name": "Claudia",
+            "games_paused": 0,
+            "games_played": 0,
+            "last_name": "1",
+            "player_id": "player_Player15",
+            "rating_snapshot": "rating_snap_14612251"
+        },
+        "16": {
+            "first_name": "Birgit",
+            "games_paused": 0,
+            "games_played": 0,
+            "last_name": "1",
+            "player_id": "player_Player16",
+            "rating_snapshot": "rating_snap_9011a99b"
+        },
+        "17": {
+            "first_name": "Andrea",
+            "games_paused": 0,
+            "games_played": 0,
+            "last_name": "1",
+            "player_id": "player_Player17",
+            "rating_snapshot": "rating_snap_eb7d4e5f"
+        },
+        "18": {
+            "first_name": "Stefanie",
+            "games_paused": 0,
+            "games_played": 0,
+            "last_name": "1",
+            "player_id": "player_Player18",
+            "rating_snapshot": "rating_snap_ca7c2ad8"
+        },
+        "19": {
+            "first_name": "Karin",
+            "games_paused": 0,
+            "games_played": 0,
+            "last_name": "1",
+            "player_id": "player_Player19",
+            "rating_snapshot": "rating_snap_bc23ec9b"
+        },
+        "2": {
+            "first_name": "Ralf",
+            "games_paused": 0,
+            "games_played": 0,
+            "last_name": "1",
+            "player_id": "player_Player2",
+            "rating_snapshot": "rating_snap_0bcc7afd"
+        },
+        "20": {
+            "first_name": "Katrin",
+            "games_paused": 0,
+            "games_played": 0,
+            "last_name": "1",
+            "player_id": "player_Player20",
+            "rating_snapshot": "rating_snap_a347cf94"
+        },
+        "3": {
+            "first_name": "Sven",
+            "games_paused": 0,
+            "games_played": 0,
+            "last_name": "1",
+            "player_id": "player_Player3",
+            "rating_snapshot": "rating_snap_adebac06"
+        },
+        "4": {
+            "first_name": "Daniel",
+            "games_paused": 0,
+            "games_played": 0,
+            "last_name": "1",
+            "player_id": "player_Player4",
+            "rating_snapshot": "rating_snap_7f0440b2"
+        },
+        "5": {
+            "first_name": "Sebastian",
+            "games_paused": 0,
+            "games_played": 0,
+            "last_name": "1",
+            "player_id": "player_Player5",
+            "rating_snapshot": "rating_snap_f7f0352b"
+        },
+        "6": {
+            "first_name": "Rainer",
+            "games_paused": 0,
+            "games_played": 0,
+            "last_name": "1",
+            "player_id": "player_Player6",
+            "rating_snapshot": "rating_snap_a05366a0"
+        },
+        "7": {
+            "first_name": "Manfred",
+            "games_paused": 0,
+            "games_played": 0,
+            "last_name": "1",
+            "player_id": "player_Player7",
+            "rating_snapshot": "rating_snap_f00391da"
+        },
+        "8": {
+            "first_name": "Oliver",
+            "games_paused": 0,
+            "games_played": 0,
+            "last_name": "1",
+            "player_id": "player_Player8",
+            "rating_snapshot": "rating_snap_a4d2d778"
+        },
+        "9": {
+            "first_name": "Holger",
+            "games_paused": 0,
+            "games_played": 0,
+            "last_name": "1",
+            "player_id": "player_Player9",
+            "rating_snapshot": "rating_snap_160bb9e1"
+        }
+    },
+    "rating_snap": {
+        "1": {
+            "game_res_id": "__INIT__",
+            "parent_id": "None",
+            "player_id": "player_Player1",
+            "rating": 1600,
+            "rating_snap_id": "rating_snap_9c235efa",
+            "rd": 125,
+            "timestamp": 1708090736.4925573,
+            "vol": 0.06
+        },
+        "10": {
+            "game_res_id": "__INIT__",
+            "parent_id": "None",
+            "player_id": "player_Player10",
+            "rating": 1250,
+            "rating_snap_id": "rating_snap_b28b84c2",
+            "rd": 125,
+            "timestamp": 1708090736.5129547,
+            "vol": 0.06
+        },
+        "11": {
+            "game_res_id": "__INIT__",
+            "parent_id": "None",
+            "player_id": "player_Player11",
+            "rating": 1200,
+            "rating_snap_id": "rating_snap_678df254",
+            "rd": 125,
+            "timestamp": 1708090736.515409,
+            "vol": 0.06
+        },
+        "12": {
+            "game_res_id": "__INIT__",
+            "parent_id": "None",
+            "player_id": "player_Player12",
+            "rating": 1200,
+            "rating_snap_id": "rating_snap_1044813f",
+            "rd": 125,
+            "timestamp": 1708090736.5178313,
+            "vol": 0.06
+        },
+        "13": {
+            "game_res_id": "__INIT__",
+            "parent_id": "None",
+            "player_id": "player_Player13",
+            "rating": 1775,
+            "rating_snap_id": "rating_snap_629c643f",
+            "rd": 125,
+            "timestamp": 1708090736.5203648,
+            "vol": 0.06
+        },
+        "14": {
+            "game_res_id": "__INIT__",
+            "parent_id": "None",
+            "player_id": "player_Player14",
+            "rating": 1400,
+            "rating_snap_id": "rating_snap_f5ba4b27",
+            "rd": 125,
+            "timestamp": 1708090736.5228348,
+            "vol": 0.06
+        },
+        "15": {
+            "game_res_id": "__INIT__",
+            "parent_id": "None",
+            "player_id": "player_Player15",
+            "rating": 2000,
+            "rating_snap_id": "rating_snap_14612251",
+            "rd": 125,
+            "timestamp": 1708090736.525567,
+            "vol": 0.06
+        },
+        "16": {
+            "game_res_id": "__INIT__",
+            "parent_id": "None",
+            "player_id": "player_Player16",
+            "rating": 1775,
+            "rating_snap_id": "rating_snap_9011a99b",
+            "rd": 125,
+            "timestamp": 1708090736.528483,
+            "vol": 0.06
+        },
+        "17": {
+            "game_res_id": "__INIT__",
+            "parent_id": "None",
+            "player_id": "player_Player17",
+            "rating": 1775,
+            "rating_snap_id": "rating_snap_eb7d4e5f",
+            "rd": 125,
+            "timestamp": 1708090736.531338,
+            "vol": 0.06
+        },
+        "18": {
+            "game_res_id": "__INIT__",
+            "parent_id": "None",
+            "player_id": "player_Player18",
+            "rating": 1275,
+            "rating_snap_id": "rating_snap_ca7c2ad8",
+            "rd": 125,
+            "timestamp": 1708090736.5344698,
+            "vol": 0.06
+        },
+        "19": {
+            "game_res_id": "__INIT__",
+            "parent_id": "None",
+            "player_id": "player_Player19",
+            "rating": 1500,
+            "rating_snap_id": "rating_snap_bc23ec9b",
+            "rd": 125,
+            "timestamp": 1708090736.537456,
+            "vol": 0.06
+        },
+        "2": {
+            "game_res_id": "__INIT__",
+            "parent_id": "None",
+            "player_id": "player_Player2",
+            "rating": 1850,
+            "rating_snap_id": "rating_snap_0bcc7afd",
+            "rd": 125,
+            "timestamp": 1708090736.496282,
+            "vol": 0.06
+        },
+        "20": {
+            "game_res_id": "__INIT__",
+            "parent_id": "None",
+            "player_id": "player_Player20",
+            "rating": 1900,
+            "rating_snap_id": "rating_snap_a347cf94",
+            "rd": 125,
+            "timestamp": 1708090736.5407069,
+            "vol": 0.06
+        },
+        "3": {
+            "game_res_id": "__INIT__",
+            "parent_id": "None",
+            "player_id": "player_Player3",
+            "rating": 1725,
+            "rating_snap_id": "rating_snap_adebac06",
+            "rd": 125,
+            "timestamp": 1708090736.4981623,
+            "vol": 0.06
+        },
+        "4": {
+            "game_res_id": "__INIT__",
+            "parent_id": "None",
+            "player_id": "player_Player4",
+            "rating": 1815,
+            "rating_snap_id": "rating_snap_7f0440b2",
+            "rd": 125,
+            "timestamp": 1708090736.500083,
+            "vol": 0.06
+        },
+        "5": {
+            "game_res_id": "__INIT__",
+            "parent_id": "None",
+            "player_id": "player_Player5",
+            "rating": 1925,
+            "rating_snap_id": "rating_snap_f7f0352b",
+            "rd": 125,
+            "timestamp": 1708090736.5021827,
+            "vol": 0.06
+        },
+        "6": {
+            "game_res_id": "__INIT__",
+            "parent_id": "None",
+            "player_id": "player_Player6",
+            "rating": 1675,
+            "rating_snap_id": "rating_snap_a05366a0",
+            "rd": 125,
+            "timestamp": 1708090736.504229,
+            "vol": 0.06
+        },
+        "7": {
+            "game_res_id": "__INIT__",
+            "parent_id": "None",
+            "player_id": "player_Player7",
+            "rating": 1500,
+            "rating_snap_id": "rating_snap_f00391da",
+            "rd": 125,
+            "timestamp": 1708090736.5062613,
+            "vol": 0.06
+        },
+        "8": {
+            "game_res_id": "__INIT__",
+            "parent_id": "None",
+            "player_id": "player_Player8",
+            "rating": 1450,
+            "rating_snap_id": "rating_snap_a4d2d778",
+            "rd": 125,
+            "timestamp": 1708090736.5084126,
+            "vol": 0.06
+        },
+        "9": {
+            "game_res_id": "__INIT__",
+            "parent_id": "None",
+            "player_id": "player_Player9",
+            "rating": 1700,
+            "rating_snap_id": "rating_snap_160bb9e1",
+            "rd": 125,
+            "timestamp": 1708090736.5106347,
+            "vol": 0.06
+        }
+    }
+}

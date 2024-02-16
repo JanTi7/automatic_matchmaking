@@ -1,0 +1,5 @@
+cost_factor_1d = [0.2]; % elo gap, sqrt = 0.45
+cost_factor_2d = [1.0, 5.0]; % team diff,  played together, sqrt(5) = 2.236
+
+reduce_thresh_1d = [199]; % elo gap
+reduce_thresh_2d = [23, 0]; % team diff, played together

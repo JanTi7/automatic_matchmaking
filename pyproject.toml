@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "automatic_matchmaking"
+version = "1.0.0"
+description = "Automatic Matchmaking in two-versus-two sports"
+authors = []
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.10.0,<3.12"
+tinydb = "^4.7.0"
+rich = "^12.6.0"
+textual = "^0.1.18"
+pandas = "^2.0.0"
+prompt-toolkit = "^3.0.31"
+minizinc = {extras = ["dzn"], version = "^0.9.0"}
+behave = "^1.2.6"
+matplotlib = "^3.6.3"
+configargparse = "^1.5.3"
+pyfiglet = "^0.8.post1"
+sacred = "^0.8.4"
+tinydb-serialization = "^2.1.0"
+hashfs = "^0.7.2"
+scikit-learn = "^1.2.2"
+seaborn = "^0.12.2"
+joblib = "^1.2.0"
+statsmodels = "^0.14.0"
+jupyter = "^1.0.0"
+tqdm = "^4.65.0"
+scipy = "^1.10.1"
+numpy = "^1.24.3"
+networkx = "^3.1"
+pygraphviz = "^1.11"
+openpyxl = "^3.1.2"
+tikzplotlib = "^0.10.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,7 +1,6 @@
 __pycache__/*
 **/__pycache__/*
 glicko2/__pycache__/*
-databases/.default
 databases/mock_runs/*
 databases/benchmark_runs/*
 logs/mock_run*
@@ -9,6 +8,7 @@ task_log/mock_runs/*
 explanations/mock_runs/*
 task_log/benchmark_runs/*
 .jlcache/
+.idea
 .ipynb_checkpoints
 **/.~lock.*
 

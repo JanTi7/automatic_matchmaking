@@ -97,6 +97,8 @@ def generate_counterfactuals(task_output: TaskOutput, print_to_terminal=True, op
 
     import statistics
     cost_norm_fac = statistics.mean([c.total for c in costs])/3
+    if cost_norm_fac == 0:
+        cost_norm_fac = 1
     print("cost norm fac", cost_norm_fac)
 
     norm_cost = lambda c: MatchupCost(*[round(v/cost_norm_fac, 2) for v in c])

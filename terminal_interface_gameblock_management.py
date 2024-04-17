@@ -94,99 +94,116 @@ def manage_the_block(game_block: BlockOfGames):
         game_block.draw()
         text = prompt('# ', completer=make_completer(game_block),
                       key_bindings=bindings)
-
         if text is None or text == "exit":
             return ReturnCode.EXIT
 
-        cmd_parts = text.split(" ", maxsplit=1)
-        if len(cmd_parts) > 1:
-            cmd, args = cmd_parts
-        else:
-            cmd = text
-            args = None
+        return_code = process_command(game_block, text)
+        if return_code is not None:
+            return return_code
 
-        if cmd == "cancel_unfinished_games":
-            game_block.cancelled.update(game_block.proposed)
-            game_block.proposed.clear()
-            save_to_db(game_block, update_if_exists=True)
+def process_command(game_block: BlockOfGames, command: str):
+    cmd_parts = command.split(" ", maxsplit=1)
+    if len(cmd_parts) > 1:
+        cmd, args = cmd_parts
+    else:
+        cmd = command
+        args = None
 
-        elif cmd == "cancel_single_game":
-            if (local_idx := extract_local_game_idx(args)) is None:
-                continue
+    if cmd == "cancel_unfinished_games":
+        game_block.cancelled.update(game_block.proposed)
+        game_block.proposed.clear()
+        save_to_db(game_block, update_if_exists=True)
 
-            if local_idx not in game_block.proposed.keys():
-                print("Keys:", game_block.proposed.keys())
-                print(f"There is no running game with the idx {local_idx}")
-                continue
+    elif cmd == "cancel_single_game":
+        if (local_idx := extract_local_game_idx(args)) is None:
+            return
 
-            game = game_block.proposed.pop(local_idx)
-            game_block.cancelled[local_idx] = game
-            save_to_db(game_block, update_if_exists=True)
+        if local_idx not in game_block.proposed.keys():
+            print("Keys:", game_block.proposed.keys())
+            print(f"There is no running game with the idx {local_idx}")
+            return
 
-        elif cmd == "uncancel_single_game":
-            if (local_idx := extract_local_game_idx(args)) is None:
-                continue
+        game = game_block.proposed.pop(local_idx)
+        game_block.cancelled[local_idx] = game
+        save_to_db(game_block, update_if_exists=True)
 
-            if local_idx not in game_block.cancelled.keys():
-                print("Keys:", game_block.cancelled.keys())
-                print(f"There is no cancelled game with the idx {local_idx}")
-                continue
+    elif cmd == "uncancel_single_game":
+        if (local_idx := extract_local_game_idx(args)) is None:
+            return
 
-            game = game_block.cancelled.pop(local_idx)
-            game_block.proposed[local_idx] = game
-            save_to_db(game_block, update_if_exists=True)
+        if local_idx not in game_block.cancelled.keys():
+            print("Keys:", game_block.cancelled.keys())
+            print(f"There is no cancelled game with the idx {local_idx}")
+            return
 
-        elif cmd == "enter_result":
-            if (local_idx := extract_local_game_idx(args)) is None:
-                continue
+        game = game_block.cancelled.pop(local_idx)
+        game_block.proposed[local_idx] = game
+        save_to_db(game_block, update_if_exists=True)
 
-            if local_idx not in game_block.proposed.keys():
-                print("Keys:", game_block.proposed.keys())
-                print(f"There is no running game with the idx {local_idx}")
-                continue
+    elif cmd == "enter_result":
+        if (local_idx := extract_local_game_idx(args)) is None:
+            return
 
-            game = GameProposed(**load_from_db(game_block.proposed[local_idx]))
+        if local_idx not in game_block.proposed.keys():
+            print("Keys:", game_block.proposed.keys())
+            print(f"There is no running game with the idx {local_idx}")
+            return
+
+        game = GameProposed(**load_from_db(game_block.proposed[local_idx]))
+        try:
+            game.draw(local_idx)
+            scores = input("Please enter the result (separated by a space): ")
+
             try:
-                game.draw(local_idx)
-                scores = input("Please enter the result (separated by a space): ")
+                points_a, points_b = scores.split(" ")
 
-                try:
-                    points_a, points_b = scores.split(" ")
+                p_a = int(points_a)
+                p_b = int(points_b)
 
-                    p_a = int(points_a)
-                    p_b = int(points_b)
+            except:
+                print("Error parsing your input.")
+                return
 
-                except:
-                    print("Error parsing your input.")
-                    continue
+            if max(p_a, p_b) < 15:
+                if not confirm("No team got 15 or more points. Sure these are the right results?"):
+                    return
 
-                if max(p_a, p_b) < 15:
-                    if not confirm("No team got 15 or more points. Sure these are the right results?"):
-                        continue
+            if max(p_a, p_b) > 21 and abs(p_a - p_b) > 2:
+                if not confirm("One team got alot more points than the other. Sure these are the right results?"):
+                    return
 
-                if max(p_a, p_b) > 21 and abs(p_a-p_b) > 2:
-                    if not confirm("One team got alot more points than the other. Sure these are the right results?"):
-                        continue
+            game_block.register_result(local_idx, points_a, points_b)
 
-                game_block.register_result(local_idx, points_a, points_b)
+        except KeyboardInterrupt:
+            print("Aborting..")
+            return
 
-            except KeyboardInterrupt:
-                print("Aborting..")
-                continue
+    elif cmd == "correct_result":
+        if (local_idx := extract_local_game_idx(args)) is None:
+            return
 
-        elif cmd == 'commit':
-            if len(game_block.proposed) > 0:
-                print("All games have to be finished or cancelled before committing!")
-                continue
+        if local_idx not in game_block.results.keys():
+            print("Keys:", game_block.results.keys())
+            print(f"There is no game with results with the idx {local_idx}")
+            return
 
-            game_block.commit()
+        game_block.unregister_result(local_idx)
 
-            ## ARE WE DONE??
+        process_command(game_block, f"enter_result {local_idx}")
 
-            return ReturnCode.FINISHED
+    elif cmd == 'commit':
+        if len(game_block.proposed) > 0:
+            print("All games have to be finished or cancelled before committing!")
+            return
 
-        else:
-            print("Unknown command.")
+        game_block.commit()
+
+        ## ARE WE DONE??
+
+        return ReturnCode.FINISHED
+
+    else:
+        print("Unknown command.")
 
 def extract_local_game_idx(args):
     try:

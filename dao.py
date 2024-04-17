@@ -300,6 +300,23 @@ class BlockOfGames:
         save_to_db(game_res)
         save_to_db(self, update_if_exists=True)
 
+
+    def unregister_result(self, local_game_idx):
+        game = GameResult(**load_from_db(self.results[local_game_idx]))
+        pp_dict = asdict(game)
+        pp_dict.pop("game_res_id")
+        pp_dict.pop("timestamp")
+        pp_dict.pop("points_a")
+        pp_dict.pop("points_b")
+
+        game_res = GameProposed(
+            **pp_dict
+        )
+        self.proposed[local_game_idx] = game_res.game_pp_id
+        del self.results[local_game_idx]
+        save_to_db(game_res)
+        save_to_db(self, update_if_exists=True)
+
     def commit(self):
         if len(self.results) > 0:
             # if all games were cancelled, nobody paused, so make sure at least one finished normally

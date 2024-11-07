@@ -1,5 +1,4 @@
 import random
-import statistics
 from abc import ABC, abstractmethod
 from collections import namedtuple
 

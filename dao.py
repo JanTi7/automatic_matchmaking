@@ -131,7 +131,6 @@ class Player:
         return RatingSnapshot(**rating)
 
     def get_current_rating(self):
-        import numpy
 
         return self.get_rating_snapshot().rating  # + numpy.random.normal(0, 0.5)
 
@@ -170,7 +169,6 @@ def generate_playerid_to_uniquename_map(list_of_pids: list, bold_first_name=Fals
 
 @cache
 def _generate_playerid_to_uniquename_map(tuple_of_pids: tuple, bold_first_name=False):
-    from collections import defaultdict
 
     name2id = defaultdict(set)
 
@@ -697,7 +695,6 @@ class PlayerPool:
     ) -> BlockOfGames | tuple[BlockOfGames, TaskOutput]:
         from find_matchups import (
             select_players_to_pause,
-            find_and_viz_solution,
             WeightMatrixManager,
         )
 
@@ -802,7 +799,6 @@ def load_player_pool_interactive():
 
 
 def generate_id(prefix):
-    from collections import defaultdict
 
     prefix2nbytes = defaultdict(lambda: 4)
     prefix2nbytes["player"] = 2

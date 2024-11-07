@@ -5,13 +5,11 @@ Created on March 20, 2017
 """
 
 import seaborn as sns
-import matplotlib.patches as patches
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import math as math
 from pylab import *
-import io, os, sys, types
 
 pd.options.mode.chained_assignment = None  # default='warn'
 # sns.set_style("whitegrid")
@@ -165,9 +163,7 @@ def PlotLikertOverConditions(
             for j in range(len(patch_handles)):
                 for i, p in enumerate(patch_handles[j].get_children()):
                     if type(p) == (matplotlib.patches.Rectangle):
-                        if p.get_height() == barwidth and not (
-                            p in patches_already_moved
-                        ):
+                        if p.get_height() == barwidth and p not in patches_already_moved:
                             #                         print (p in patches_already_moved),
 
                             p.set_xy((p.get_x(), p.get_y() + shift))
@@ -251,9 +247,7 @@ def PlotLikertOverConditions(
             for j in range(len(patch_handles)):
                 for i, p in enumerate(patch_handles[j].get_children()):
                     if type(p) == (matplotlib.patches.Rectangle):
-                        if p.get_height() == barwidth and not (
-                            p in patches_already_moved
-                        ):
+                        if p.get_height() == barwidth and p not in patches_already_moved:
                             shift = SHIFT2(p.get_y())
 
                             p.set_xy((p.get_x(), shift))

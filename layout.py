@@ -1,7 +1,6 @@
 import pathlib
 
 import io
-import rich
 
 from rich.align import Align
 from rich.panel import Panel
@@ -10,7 +9,7 @@ from rich.layout import Layout
 from rich.console import Console
 from rich.columns import Columns
 
-from dao import BlockOfGames, load_from_db, GameProposed, db_name
+from dao import BlockOfGames, db_name
 from matching_algos.task_input_output import TaskOutput
 
 
@@ -31,7 +30,7 @@ def explanation_viz(
         Layout(name="right"),
     )
 
-    from viz import print_table, viz_block_of_games, viz_single_game
+    from viz import print_table, viz_block_of_games
 
     layout["left"].update(
         Align.center(

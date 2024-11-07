@@ -1,9 +1,8 @@
 import logging
 import math
 import time
-import datetime
 from collections import defaultdict
-from random import shuffle, Random
+from random import Random
 
 import numpy as np
 
@@ -11,7 +10,6 @@ from sacred import Experiment, Ingredient
 from helper.tinydb_hashfs import SuperTinyDbObserver, SuperTinyDbReader
 
 from dao import add_new_player, use_database, PlayerPool, GameProposed, load_from_db
-from find_matchups import TaskInput
 from matching_algos.base_matching_algo import MatchupCostCalculator
 from matching_algos.bruteforce_matching import BruteforceMatcher
 from matching_algos.bruteforce_matching_minizinc import BruteforceMatcherMinizinc
@@ -20,7 +18,6 @@ from matching_algos.fixed_order_matching import FixedOrderMatcher
 from matching_algos.minizinc_matching import MinizincMatcher
 from matching_algos.random_matching import RandomMatcher
 from matching_algos.helpers import calc_rdm_result
-from matching_algos.reliable_matching import ReliableMatcher
 
 
 pool_generation = Ingredient("pool_gen")

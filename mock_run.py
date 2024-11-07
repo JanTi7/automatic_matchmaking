@@ -1,11 +1,8 @@
-import pathlib
 import random
 import logging
-from rich import print as rprint
 from rich.console import Console
-from configargparse import ArgumentParser
 from dao import use_database, load_from_db
-from dao import PlayerPool, BlockOfGames, GameProposed
+from dao import PlayerPool, GameProposed
 from dao import add_new_player
 
 from matching_algos.helpers import calc_rdm_result

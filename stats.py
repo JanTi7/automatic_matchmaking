@@ -1,6 +1,5 @@
 from datetime import timedelta
 from dao import get_all_games_in_timewindow
-from viz import viz_single_game
 
 
 def print_all_games_of(player_id, delta: timedelta):

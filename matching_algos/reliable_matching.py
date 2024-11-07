@@ -1,10 +1,7 @@
 import concurrent.futures
 import time
 from concurrent.futures import (
-    ThreadPoolExecutor,
-    wait,
     as_completed,
-    FIRST_COMPLETED,
     ProcessPoolExecutor,
 )
 
@@ -22,8 +19,6 @@ class ReliableMatcher(BaseMatchingAlgo):
         self.minizinc_duration = 9.2
 
     def _find_matching(self, task_input: TaskInput) -> TaskOutput:
-        from threading import Thread, Event, Timer
-        from queue import Queue
         import secrets
 
         secret = secrets.token_hex(4)

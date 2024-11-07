@@ -1,8 +1,5 @@
-import itertools
-import random
 from collections import defaultdict
 
-from algo_glicko2 import glicko2predict
 from rating_algos.base_rating_algo import (
     BaseRatingAlgo,
     X_data,
@@ -11,7 +8,6 @@ from rating_algos.base_rating_algo import (
     Y_data,
     weighted_mean_with_w,
 )
-from dao import GameResult, RatingSnapshot
 
 
 class FixedRatingAlgo(BaseRatingAlgo):

@@ -84,11 +84,6 @@ class BruteforceMatcher(BaseMatchingAlgo):
             # print("scipy exited")
 
         else:
-            from concurrent.futures import (
-                ThreadPoolExecutor,
-                as_completed,
-                ProcessPoolExecutor,
-            )
 
             combs = [
                 (self.presolve, self.mip_rel_gap),

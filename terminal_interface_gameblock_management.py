@@ -1,5 +1,4 @@
 import time
-from dataclasses import asdict
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import NestedCompleter, FuzzyWordCompleter
 from prompt_toolkit.shortcuts import confirm
@@ -10,9 +9,7 @@ from enum import Enum, auto
 from dao import (
     save_to_db,
     load_from_db,
-    get_player_from_id,
     GameProposed,
-    GameResult,
     BlockOfGames,
     load_unfinished_blocks_of_games,
     remove_all_unfinished_blocks_of_games,

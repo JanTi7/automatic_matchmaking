@@ -1,18 +1,13 @@
 import random
 import time
-from typing import Optional
 
 import numpy as np
 import asyncio
 import logging
 from minizinc import Instance, Model, Solver
-from minizinc.dzn import parse_dzn
 from datetime import timedelta
-import dataclasses
-from dataclasses import dataclass
 
 from dao import Participants, get_participants_from_last_matches, Player, load_from_db
-from matching_algos.base_matching_algo import MatchupCostCalculator
 
 from matching_algos.task_input_output import TaskInput, TaskOutput
 

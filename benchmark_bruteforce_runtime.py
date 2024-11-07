@@ -2,9 +2,7 @@ import time
 
 from sacred import Experiment
 
-from dao import add_new_player, use_database, PlayerPool, GameProposed, load_from_db
-from helper.tinydb_hashfs import SuperTinyDbObserver
-from matching_algos.bruteforce_matching import BruteforceMatcher
+from dao import add_new_player, use_database, PlayerPool
 from matching_algos.bruteforce_matching_minizinc import BruteforceMatcherMinizinc
 import logging
 

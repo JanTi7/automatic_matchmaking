@@ -1,14 +1,10 @@
-import random
 
 import rich
 from rich.console import Console
-from rich.columns import Columns
 from rich.panel import Panel
 from rich.table import Table
-from rich.color import Color
 from rich.align import Align
 from rich.text import Text
-from rich.style import Style
 from rich import box
 
 from dao import (

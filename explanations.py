@@ -7,7 +7,6 @@ from matching_algos.base_matching_algo import MatchupCostCalculator
 from matching_algos.task_input_output import TaskOutput, MatchupCost
 
 from rich.table import Table
-from rich.layout import Layout
 from rich.columns import Columns
 from rich.align import Align
 from rich.text import Text
@@ -195,7 +194,6 @@ def generate_counterfactuals(
             print(f"Kein Counterfactual für {field} gefunden!")
             continue
 
-        from pprint import pprint
 
         possible_counterfactuals = list(
             sorted(possible_counterfactuals, key=lambda t: t[:2])

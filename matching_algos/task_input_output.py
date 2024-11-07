@@ -1,6 +1,5 @@
 import itertools
 import logging
-import pathlib
 from dataclasses import dataclass, field
 
 from collections import namedtuple

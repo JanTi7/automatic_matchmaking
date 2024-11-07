@@ -48,7 +48,8 @@ class RandomMatcher(BaseMatchingAlgo):
             output = TaskOutput(
                 input=task_input,
                 matchups=self._indices_to_player_ids(
-                    [opt(a[i:i + 4]) for i in range(0, len(a), 4)], task_input),
+                    [opt(a[i : i + 4]) for i in range(0, len(a), 4)], task_input
+                ),
                 players_to_pause=[],
                 # cost_time=None
             )
@@ -76,7 +77,8 @@ class RandomMatcher(BaseMatchingAlgo):
             output = TaskOutput(
                 input=task_input,
                 matchups=self._indices_to_player_ids(
-                    [opt(a[i:i + 4]) for i in range(0, len(a), 4)], task_input),
+                    [opt(a[i : i + 4]) for i in range(0, len(a), 4)], task_input
+                ),
                 players_to_pause=[],
                 # cost_time=None
             )

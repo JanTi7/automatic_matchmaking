@@ -4,7 +4,9 @@ from dao import use_database
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("db", help="filename of the database without the database/ path")
+    parser.add_argument(
+        "db", help="filename of the database without the database/ path"
+    )
 
     args = parser.parse_args()
 
@@ -19,5 +21,3 @@ if __name__ == "__main__":
         player.first_name = player.player_id
 
         save_to_db(player, update_if_exists=True)
-
-

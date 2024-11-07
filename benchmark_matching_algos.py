@@ -40,16 +40,18 @@ def pool_gen_config():
 
 
 @pool_generation.capture
-def generate_pool(_rnd: np.random.Generator, mean_rating, std_rating,
-                  poolsize,
-                  ):
-
+def generate_pool(
+    _rnd: np.random.Generator,
+    mean_rating,
+    std_rating,
+    poolsize,
+):
     from mock_run_names import name_pool
 
     name_pool = list(name_pool)
     _rnd.shuffle(name_pool)
 
-    name_pool += ["alpha_"+n for n in name_pool]
+    name_pool += ["alpha_" + n for n in name_pool]
 
     res = list()
     for _ in range(poolsize):
@@ -67,7 +69,6 @@ matching_benchmark.observers.append(SuperTinyDbObserver("benchmark_matching_resu
 @matching_benchmark.config
 def matching_benchmark_config():
     load_last_res_dict_flag = False
-
 
     n_runs = 10
     n_rounds = 1
@@ -108,11 +109,19 @@ def large_run():
     # n_rounds = 6
 
 
-
 @matching_benchmark.automain
-def benchmark_main(_run, _rnd, n_runs, n_rounds, games_per_round, pause_mode, higher_rating_weight,
-                   initial_rating_estimate,
-                   load_last_res_dict_flag, solve_same_tasks=True):
+def benchmark_main(
+    _run,
+    _rnd,
+    n_runs,
+    n_rounds,
+    games_per_round,
+    pause_mode,
+    higher_rating_weight,
+    initial_rating_estimate,
+    load_last_res_dict_flag,
+    solve_same_tasks=True,
+):
     _run.info["results"] = dict()
     _run.info["results_detailed"] = dict()
     res_dict = _run.info["results"]
@@ -123,7 +132,12 @@ def benchmark_main(_run, _rnd, n_runs, n_rounds, games_per_round, pause_mode, hi
 
     matching_algos = dict(
         DoubleSymmetric=lambda: DoubleSymmetricMatcher(exponent=2),
-        Minizinc=lambda: MinizincMatcher(search_duration=9.3, viz_weight_matrices=False, verbose=False, log_tasks=False),
+        Minizinc=lambda: MinizincMatcher(
+            search_duration=9.3,
+            viz_weight_matrices=False,
+            verbose=False,
+            log_tasks=False,
+        ),
         Random=lambda: RandomMatcher(tries=1),
         FixedOrder=FixedOrderMatcher,
         ILP_scipy=lambda: BruteforceMatcher(presolve=False, mip_rel_gap=0.0),
@@ -148,7 +162,6 @@ def benchmark_main(_run, _rnd, n_runs, n_rounds, games_per_round, pause_mode, hi
         algo_matcher_dicts = [{k: v} for k, v in matching_algos.items()]
 
     for algo_matcher_dict in algo_matcher_dicts:
-
         for run_i in range(n_runs):
             playerpool = player_pool_per_run[run_i]
             names = list()
@@ -158,17 +171,22 @@ def benchmark_main(_run, _rnd, n_runs, n_rounds, games_per_round, pause_mode, hi
                 names.append(name)
                 name2rating[name] = rating
 
-            pids_for_each_round = [draw_from_pool(run_i, names) for _ in range(n_rounds)]
+            pids_for_each_round = [
+                draw_from_pool(run_i, names) for _ in range(n_rounds)
+            ]
 
             import secrets
+
             db_name = f"benchmark_runs/{time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime())}_{'_'.join(algo_matcher_dict.keys())}_{secrets.token_hex(1)}.json"
-            use_database(db_name, create_new=True)  # can i parallelize with this global var? -> using processes?
+            use_database(
+                db_name, create_new=True
+            )  # can i parallelize with this global var? -> using processes?
 
             name2pid = dict()
             for name in names:
                 start_rating = 1500
                 if initial_rating_estimate:
-                    start_rating = name2rating[name] + (_rnd.random()-0.5) * 150
+                    start_rating = name2rating[name] + (_rnd.random() - 0.5) * 150
                 pid = add_new_player(name, "-", start_rating, 125)
                 name2pid[name] = pid
 
@@ -182,32 +200,52 @@ def benchmark_main(_run, _rnd, n_runs, n_rounds, games_per_round, pause_mode, hi
                 for game_i in range(games_per_round):
                     game_blocks = list()
                     for algo_name, Matcher in algo_matcher_dict.items():
-
-                        game_block, task_output = pool.start_next_round(pause_mode,
-                                                                        higher_rating_weight=higher_rating_weight,
-                                                                        matching_algo=Matcher,
-                                                                        return_task_output=True)
+                        game_block, task_output = pool.start_next_round(
+                            pause_mode,
+                            higher_rating_weight=higher_rating_weight,
+                            matching_algo=Matcher,
+                            return_task_output=True,
+                        )
 
                         if solve_same_tasks:
-                            print(round_i, game_i, f"{task_output.cost_quad.total:.2f}".rjust(9), algo_name.ljust(32),
-                                  f"{task_output.cost_time:.2f}s".rjust(7), task_output.cost_quad)
+                            print(
+                                round_i,
+                                game_i,
+                                f"{task_output.cost_quad.total:.2f}".rjust(9),
+                                algo_name.ljust(32),
+                                f"{task_output.cost_time:.2f}s".rjust(7),
+                                task_output.cost_quad,
+                            )
                         else:
-                            print(algo_name, round_i, game_i, task_output.cost_quad, f"{task_output.cost_time:.2f}s")
+                            print(
+                                algo_name,
+                                round_i,
+                                game_i,
+                                task_output.cost_quad,
+                                f"{task_output.cost_time:.2f}s",
+                            )
 
-                        data[algo_name].append(dict(
-                            idx=round_i * games_per_round + game_i,
-                            runtime=task_output.cost_time,
-                            **task_output.cost._asdict(),
-                            **{f"quad_{key}": val for key, val in task_output.cost_quad._asdict().items()}
-                        ))
+                        data[algo_name].append(
+                            dict(
+                                idx=round_i * games_per_round + game_i,
+                                runtime=task_output.cost_time,
+                                **task_output.cost._asdict(),
+                                **{
+                                    f"quad_{key}": val
+                                    for key, val in task_output.cost_quad._asdict().items()
+                                },
+                            )
+                        )
 
-                        detailed_data[algo_name].append(dict(
-                            idx=round_i * games_per_round + game_i,
-                            ratings=task_output.input.rating_list,
-                            matchups=task_output.matchups_as_idx(),
-                            personal_costs=MatchupCostCalculator.from_taskinput(task_output.input).cost_per_person(
-                                task_output.matchups_as_idx()
-                            ))
+                        detailed_data[algo_name].append(
+                            dict(
+                                idx=round_i * games_per_round + game_i,
+                                ratings=task_output.input.rating_list,
+                                matchups=task_output.matchups_as_idx(),
+                                personal_costs=MatchupCostCalculator.from_taskinput(
+                                    task_output.input
+                                ).cost_per_person(task_output.matchups_as_idx()),
+                            )
                         )
 
                         game_blocks.append((task_output.cost_quad, game_block))
@@ -221,8 +259,12 @@ def benchmark_main(_run, _rnd, n_runs, n_rounds, games_per_round, pause_mode, hi
                     for g_idx, game_id in game_block.proposed.items():
                         game = GameProposed(**load_from_db(game_id))
 
-                        elo_team_a, elo_team_b = (pid2elo[game.players().a1] + pid2elo[game.players().a2]) / 2, \
-                                                 (pid2elo[game.players().b1] + pid2elo[game.players().b2]) / 2
+                        elo_team_a, elo_team_b = (
+                            (pid2elo[game.players().a1] + pid2elo[game.players().a2])
+                            / 2,
+                            (pid2elo[game.players().b1] + pid2elo[game.players().b2])
+                            / 2,
+                        )
                         points_a, points_b = calc_rdm_result(elo_team_a, elo_team_b)
 
                         game_results.append((g_idx, points_a, points_b))

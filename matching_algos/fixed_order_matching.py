@@ -14,7 +14,8 @@ class FixedOrderMatcher(BaseMatchingAlgo):
         return TaskOutput(
             input=task_input,
             matchups=self._indices_to_player_ids(
-                [(x, x+3, x+1, x+2) for x in range(0, len(a), 4)], task_input),
+                [(x, x + 3, x + 1, x + 2) for x in range(0, len(a), 4)], task_input
+            ),
             players_to_pause=[],
             # cost_time=time.time()-start_time
         )

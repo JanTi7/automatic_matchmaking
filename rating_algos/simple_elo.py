@@ -2,11 +2,17 @@ import copy
 
 from collections import defaultdict
 
-from rating_algos.base_rating_algo import BaseRatingAlgo, X_data, Y_data, Prediction, PredictionRaw, weighted_mean_with_w
+from rating_algos.base_rating_algo import (
+    BaseRatingAlgo,
+    X_data,
+    Y_data,
+    Prediction,
+    PredictionRaw,
+    weighted_mean_with_w,
+)
 
 
 class Elo(BaseRatingAlgo):
-
     def __init__(self, start_rating, higher_rating_weight, result_softener, k=32):
         super().__init__()
         self.initial_state = defaultdict(lambda: start_rating)
@@ -25,13 +31,19 @@ class Elo(BaseRatingAlgo):
         for game_block, game_block_results in zip(x, y):
             for game, game_result in zip(game_block, game_block_results):
                 expected_a = self._predict(game[:4])
-                actual_team_a = self.result_softener(game_result.points_a, game_result.points_b)[0]
+                actual_team_a = self.result_softener(
+                    game_result.points_a, game_result.points_b
+                )[0]
 
-                rating_change_a = self.k * (actual_team_a-expected_a)
+                rating_change_a = self.k * (actual_team_a - expected_a)
 
-                for pid, fac in [(game.a1, 1), (game.a2, 1), (game.b1, -1), (game.b2, -1)]:
+                for pid, fac in [
+                    (game.a1, 1),
+                    (game.a2, 1),
+                    (game.b1, -1),
+                    (game.b2, -1),
+                ]:
                     self.players[pid] += fac * rating_change_a
-
 
     def _predict(self, players, higher_rating_weight=None):
         higher_rating_weight = higher_rating_weight or self.higher_rating_weight
@@ -39,7 +51,7 @@ class Elo(BaseRatingAlgo):
         team_elo_a = wmean([self.players[pid] for pid in players[0:2]])
         team_elo_b = wmean([self.players[pid] for pid in players[2:4]])
 
-        return 1/(1+10**((team_elo_b-team_elo_a)/400))
+        return 1 / (1 + 10 ** ((team_elo_b - team_elo_a) / 400))
 
     def predict(self, x: list[X_data]) -> list[Prediction]:
         pass
@@ -49,9 +61,13 @@ class Elo(BaseRatingAlgo):
             PredictionRaw(
                 self._who_wins(win_team_a),  # 0 means team a - 1 team b
                 win_team_a,
-                ratings=tuple(self.players[pid] for pid in game[:4])
+                ratings=tuple(self.players[pid] for pid in game[:4]),
             )
             for game in x
-            if (win_team_a := self._predict(game[:4], higher_rating_weight=higher_rating_weight))
-               is not None  # just filler since the precition might be 0
+            if (
+                win_team_a := self._predict(
+                    game[:4], higher_rating_weight=higher_rating_weight
+                )
+            )
+            is not None  # just filler since the precition might be 0
         ]

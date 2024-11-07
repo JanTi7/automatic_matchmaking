@@ -2,8 +2,11 @@ from datetime import timedelta
 from dao import get_all_games_in_timewindow
 from viz import viz_single_game
 
+
 def print_all_games_of(player_id, delta: timedelta):
-    relevant_games = [g for g in get_all_games_in_timewindow(delta) if player_id in g.players()]
+    relevant_games = [
+        g for g in get_all_games_in_timewindow(delta) if player_id in g.players()
+    ]
     relevant_games = sorted(relevant_games, key=lambda g: g.timestamp)
 
     for game in relevant_games:
@@ -20,7 +23,6 @@ def parse_delta(delta_str: str):
     if unit == "w":
         return timedelta(weeks=(int(numbers)))
     if unit == "m":
-        return timedelta(days=31*(int(numbers)))
+        return timedelta(days=31 * (int(numbers)))
     if unit == "y":
-        return timedelta(days=356*(int(numbers)))
-
+        return timedelta(days=356 * (int(numbers)))

@@ -33,6 +33,7 @@ ndarray_type = opt.np.ndarray if opt.has_numpy else None
 #     def __str__(self):
 #         return repr(self)
 
+
 class BufferedReaderWrapper(BufferedReader):
     """Custom wrapper to allow for copying of file handle.
 
@@ -148,10 +149,11 @@ class MockFileSerializer(Serializer):
 #         return ArchivableFilepath(address.relpath)
 
 
-def get_db_file_manager(root_dir, get_all_databases) -> Tuple[TinyDB, HashFS] | Tuple[dict[str, TinyDB], HashFS]:
+def get_db_file_manager(
+    root_dir, get_all_databases
+) -> Tuple[TinyDB, HashFS] | Tuple[dict[str, TinyDB], HashFS]:
     root_dir = Path(root_dir)
     fs = HashFS(root_dir / "hashfs", depth=3, width=2, algorithm="md5")
-
 
     def get_serialization_store():
         # Setup Serialisation object for non list/dict objects
@@ -164,7 +166,9 @@ def get_db_file_manager(root_dir, get_all_databases) -> Tuple[TinyDB, HashFS] | 
         if opt.has_numpy:
             serialization_store.register_serializer(NdArraySerializer(), "TinyArray")
         if opt.has_pandas:
-            serialization_store.register_serializer(DataFrameSerializer(), "TinyDataFrame")
+            serialization_store.register_serializer(
+                DataFrameSerializer(), "TinyDataFrame"
+            )
             serialization_store.register_serializer(SeriesSerializer(), "TinySeries")
 
         return serialization_store
@@ -172,8 +176,9 @@ def get_db_file_manager(root_dir, get_all_databases) -> Tuple[TinyDB, HashFS] | 
     import socket
     import pathlib
 
-    load_db = lambda filename: TinyDB(os.path.join(root_dir, filename), storage=get_serialization_store())  #
-
+    load_db = lambda filename: TinyDB(
+        os.path.join(root_dir, filename), storage=get_serialization_store()
+    )  #
 
     if not get_all_databases:
         print("[TinyDBObserver] Opening db", f"{socket.gethostname()}.json")

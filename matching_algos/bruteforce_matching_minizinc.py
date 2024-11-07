@@ -38,7 +38,9 @@ class BruteforceMatcherMinizinc(BaseMatchingAlgo):
         c = np.array([cost.total for cost, matchup in all_parts])
 
         # if i don't sort all_parts, then A is constant
-        A = np.array([[int(pidx in matchup) for _, matchup in all_parts] for pidx in range(N)])
+        A = np.array(
+            [[int(pidx in matchup) for _, matchup in all_parts] for pidx in range(N)]
+        )
 
         try:
             solver = Solver.lookup(self.solver)
@@ -55,23 +57,23 @@ class BruteforceMatcherMinizinc(BaseMatchingAlgo):
         instance["cost"] = c
 
         result = instance.solve(
-            timeout=timedelta(seconds=max(10.0,
-                self.timeout-(time.time()-start_time))),
+            timeout=timedelta(
+                seconds=max(10.0, self.timeout - (time.time() - start_time))
+            ),
         )
 
         x = result.solution.x
 
         selected_matchups = np.array(np.rint(result.solution.x), dtype=int)
 
-
-        matchup_table = [matchup for idx, (_, matchup) in enumerate(all_parts) if selected_matchups[idx] == 1]
-
+        matchup_table = [
+            matchup
+            for idx, (_, matchup) in enumerate(all_parts)
+            if selected_matchups[idx] == 1
+        ]
 
         return TaskOutput(
             input=task_input,
             matchups=self._indices_to_player_ids(matchup_table, task_input),
             players_to_pause=[],
         )
-
-
-

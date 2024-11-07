@@ -15,20 +15,26 @@ def weighted_mean_with_w(higher_rating_weight):
     def weighted_mean(l: list):
         low, high = sorted(l)
         high *= higher_rating_weight
-        return (low+high) / (higher_rating_weight + 1)
+        return (low + high) / (higher_rating_weight + 1)
+
     return weighted_mean
 
 
 def get_result_softener(inp):
     from functools import partial
+
     if inp[0] == "binary":
-        return lambda points_a, points_b: (int(points_a > points_b), int(points_b > points_a))
+        return lambda points_a, points_b: (
+            int(points_a > points_b),
+            int(points_b > points_a),
+        )
     elif inp[0] == "linear":
         _, maxv = inp
+
         def lin_res_softener(pa, pb):
             minp, maxp = min([pa, pb]), max([pa, pb])
-            fac = minp/(minp+maxp)
-            courtesy = 2*fac*maxv  # maxv is 0.5 at max
+            fac = minp / (minp + maxp)
+            courtesy = 2 * fac * maxv  # maxv is 0.5 at max
 
             percentages = [1 - courtesy, courtesy]
 
@@ -74,8 +80,3 @@ class BaseRatingAlgo(ABC):
     @abstractmethod
     def predict_raw(self, x: list[X_data], higher_rating_weight) -> list[PredictionRaw]:
         pass
-
-
-
-
-

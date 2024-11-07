@@ -3,6 +3,7 @@ from matching_algos.task_input_output import TaskInput, TaskOutput
 
 from pprint import pprint
 
+
 class InteractiveMatcher(BaseMatchingAlgo):
     def __init__(self):
         super().__init__("InteractiveMatcher")
@@ -22,7 +23,6 @@ class InteractiveMatcher(BaseMatchingAlgo):
                 a, b, c, d = matchup
                 print(f"{idx2name[a]} & {idx2name[b]} v {idx2name[c]} & {idx2name[d]}")
 
-
         current_matchup = list()
         while len(teamless_players) > 0:
             if len(teamless_players) == 2:
@@ -37,7 +37,11 @@ class InteractiveMatcher(BaseMatchingAlgo):
             pprint(teamless_players)
 
             while True:
-                next_person = int(input(f"Who is next in this matchup? {[idx2name[idx] for idx in current_matchup]}"))
+                next_person = int(
+                    input(
+                        f"Who is next in this matchup? {[idx2name[idx] for idx in current_matchup]}"
+                    )
+                )
                 if next_person in teamless_players.keys():
                     teamless_players.pop(next_person)
                     current_matchup.append(next_person)
@@ -50,8 +54,6 @@ class InteractiveMatcher(BaseMatchingAlgo):
 
         return TaskOutput(
             input=task_input,
-            matchups=self._indices_to_player_ids(
-                matchups, task_input),
+            matchups=self._indices_to_player_ids(matchups, task_input),
             players_to_pause=[],
         )
-

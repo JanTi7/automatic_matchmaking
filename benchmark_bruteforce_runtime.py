@@ -26,6 +26,7 @@ def benchmark_main(_run, n_runs, n):
     logging.getLogger().setLevel(logging.WARNING)
 
     import secrets
+
     db_name = f"benchmark_runs/{time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime())}_bruteforce_runtime_{secrets.token_hex(1)}.json"
     use_database(db_name, create_new=True, init_logging=False, print_ascii=False)
 
@@ -37,10 +38,12 @@ def benchmark_main(_run, n_runs, n):
 
     runtimes = list()
     for run_i in range(n_runs):
-        game_block, task_output = pool.start_next_round(pause_mode="random",
-                                                        higher_rating_weight=2,
-                                                        matching_algo=BruteforceMatcherMinizinc,
-                                                        return_task_output=True)
+        game_block, task_output = pool.start_next_round(
+            pause_mode="random",
+            higher_rating_weight=2,
+            matching_algo=BruteforceMatcherMinizinc,
+            return_task_output=True,
+        )
 
         runtimes.append(task_output.cost_time)
         print(16 * " ", f"{task_output.cost_time:.2f}s")
@@ -49,7 +52,9 @@ def benchmark_main(_run, n_runs, n):
         for g_idx, game_id in game_block.proposed.items():
             points_a, points_b = calc_rdm_result(1500, 1500)
 
-            game_results.append((g_idx, points_a, points_b))  # todo: add warped timestamp
+            game_results.append(
+                (g_idx, points_a, points_b)
+            )  # todo: add warped timestamp
 
         for game_res in game_results:
             game_block.register_result(*game_res)

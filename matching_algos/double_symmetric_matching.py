@@ -34,7 +34,9 @@ class Node:
             nodes = [(i, j), (j, i)]
         else:
             nodes = [(i, i)]
-        return Node(self.include + nodes, self.exclude), Node(self.include, self.exclude + nodes)
+        return Node(self.include + nodes, self.exclude), Node(
+            self.include, self.exclude + nodes
+        )
 
     def cardinality(self):
         return len(self.include)  # + len(self.exclude) # or just include?
@@ -74,9 +76,12 @@ def LB(C, N, reduce_rcm):
 def find_pivot(N, reduce_rcm, return_all_pivots=False):
     reduced_RCM = reduce_rcm(N)[0]
 
-    possible_pairs = [(i, j) for i in reduced_RCM.index for j in reduced_RCM.columns if i < j
-                      and reduced_RCM.at[i, j] == 0
-                      and (i, j) not in N.exclude]
+    possible_pairs = [
+        (i, j)
+        for i in reduced_RCM.index
+        for j in reduced_RCM.columns
+        if i < j and reduced_RCM.at[i, j] == 0 and (i, j) not in N.exclude
+    ]
 
     pairs_with_costs = []
     for i, j in possible_pairs:
@@ -84,7 +89,12 @@ def find_pivot(N, reduce_rcm, return_all_pivots=False):
         tmp_RCM.at[i, j] = np.Inf
         tmp_RCM.at[j, i] = np.Inf
 
-        cost = tmp_RCM.loc[i].min() + tmp_RCM.loc[j].min() + tmp_RCM[i].min() + tmp_RCM[j].min()
+        cost = (
+            tmp_RCM.loc[i].min()
+            + tmp_RCM.loc[j].min()
+            + tmp_RCM[i].min()
+            + tmp_RCM[j].min()
+        )
 
         pairs_with_costs.append(((i, j), cost))
 
@@ -143,10 +153,9 @@ def get_symmetric_matching(C, timeout=120):
     from scipy.optimize import linear_sum_assignment
 
     def is_solution_symmetric(col_ind):
-        return all([
-            col_ind[col_ind[i]] == i and col_ind[i] != i
-            for i in range(len(col_ind))
-        ])
+        return all(
+            [col_ind[col_ind[i]] == i and col_ind[i] != i for i in range(len(col_ind))]
+        )
 
     _, scipy_solution = linear_sum_assignment(C)
     if is_solution_symmetric(scipy_solution):
@@ -155,12 +164,12 @@ def get_symmetric_matching(C, timeout=120):
     else:
         return _get_symmetric_matching(C, timeout)[0].include
 
+
 def _get_symmetric_matching(C, timeout):
     start_time = time.time()
 
     if type(C) != pd.core.frame.DataFrame:
         C = pd.DataFrame(C)
-
 
     nodes_visited = list()
     # nodes contain (LB, len(include), Node)
@@ -181,12 +190,12 @@ def _get_symmetric_matching(C, timeout):
         if pivot is None:
             raise ValueError("No pivot found")
 
-
         # print("Current Node:", nodes_visited[-1])
         # print("Branching on:", pivot)
 
-        new_nodes = [(LB_(n), n.cardinality(), n) for n in
-                     N.branch(pivot)]  # only allowing one pivot per note!
+        new_nodes = [
+            (LB_(n), n.cardinality(), n) for n in N.branch(pivot)
+        ]  # only allowing one pivot per note!
 
         # print("New Nodes:", new_nodes)
 
@@ -219,7 +228,9 @@ class DoubleSymmetricMatcher(BaseMatchingAlgo):
             return self._find_matching_orig(task_input, 40)
         except TimeoutError:
             logging.error("DoubleSymmetric Timeout Error")
-            return RandomMatcher(runtime=10, optimize_sets=True).find_matching(task_input)
+            return RandomMatcher(runtime=10, optimize_sets=True).find_matching(
+                task_input
+            )
 
     def _find_matching_orig(self, task_input: TaskInput, timeout=120) -> TaskOutput:
         n = len(task_input.rating_list)
@@ -228,11 +239,18 @@ class DoubleSymmetricMatcher(BaseMatchingAlgo):
         # match players to teams
 
         cost_played_together_team = np.array(
-            [[cost_calc.played_together_team_duo(i, j)**self.e for i in range(n)] for j in range(n)],
-            dtype=float)
+            [
+                [cost_calc.played_together_team_duo(i, j) ** self.e for i in range(n)]
+                for j in range(n)
+            ],
+            dtype=float,
+        )
         cost_elo_gap_duo = np.array(
-            [[cost_calc.elo_gap_duo(i, j)**self.e for i in range(n)] for j in range(n)],
-            dtype=float
+            [
+                [cost_calc.elo_gap_duo(i, j) ** self.e for i in range(n)]
+                for j in range(n)
+            ],
+            dtype=float,
         )
 
         heuristic_team_cost = cost_played_together_team + cost_elo_gap_duo
@@ -247,22 +265,40 @@ class DoubleSymmetricMatcher(BaseMatchingAlgo):
         # match teams to matchups
 
         cost_elo_gap = np.array(
-            [[cost_calc.elo_gap([teams[i]+teams[j]])**self.e for i in range(n_teams)] for j in range(n_teams)],
-            dtype=float
+            [
+                [
+                    cost_calc.elo_gap([teams[i] + teams[j]]) ** self.e
+                    for i in range(n_teams)
+                ]
+                for j in range(n_teams)
+            ],
+            dtype=float,
         )
 
         cost_team_diff = np.array(
-            [[cost_calc.team_diff([teams[i] + teams[j]])**self.e for i in range(n_teams)] for j in range(n_teams)],
-            dtype=float
+            [
+                [
+                    cost_calc.team_diff([teams[i] + teams[j]]) ** self.e
+                    for i in range(n_teams)
+                ]
+                for j in range(n_teams)
+            ],
+            dtype=float,
         )
 
         cost_played_together = np.array(
-            [[cost_calc.played_together([teams[i] + teams[j]])**self.e for i in range(n_teams)] for j in range(n_teams)],
-            dtype=float
+            [
+                [
+                    cost_calc.played_together([teams[i] + teams[j]]) ** self.e
+                    for i in range(n_teams)
+                ]
+                for j in range(n_teams)
+            ],
+            dtype=float,
         )
 
         final_costs = cost_elo_gap + cost_team_diff + cost_played_together
-        for i in range(n//2):
+        for i in range(n // 2):
             final_costs[i, i] = np.inf
 
         matchups = get_symmetric_matching(final_costs, timeout=timeout)

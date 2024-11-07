@@ -17,15 +17,26 @@ class TaskLogger:
 
     def log_input(self, task_input):
         import dao
+
         filename = LOG_FOLDER / f"{dao.db_name.split('.')[0]}_{self.ts}.taskinput.json"
         filename.parent.mkdir(exist_ok=True)
-        filename.write_text(json.dumps(dataclasses.asdict(task_input), indent=2, separators=(',', ': ')))
+        filename.write_text(
+            json.dumps(dataclasses.asdict(task_input), indent=2, separators=(",", ": "))
+        )
 
     def log_output(self, task_output):
         import dao
+
         # TODO: maybe add metadata like how long minizinc ran
-        filename = LOG_FOLDER / f"{dao.db_name.split('.')[0]}_{self.ts}_{socket.gethostname()}.taskres.json"
-        filename.write_text(json.dumps(dataclasses.asdict(task_output), indent=2, separators=(',', ': ')))
+        filename = (
+            LOG_FOLDER
+            / f"{dao.db_name.split('.')[0]}_{self.ts}_{socket.gethostname()}.taskres.json"
+        )
+        filename.write_text(
+            json.dumps(
+                dataclasses.asdict(task_output), indent=2, separators=(",", ": ")
+            )
+        )
 
 
 def taskoutput_from_file(taskres_file):

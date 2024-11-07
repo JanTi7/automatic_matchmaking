@@ -2,15 +2,22 @@ import copy
 
 from collections import defaultdict
 
-from rating_algos.base_rating_algo import BaseRatingAlgo, X_data, Y_data, Prediction, PredictionRaw, weighted_mean_with_w
+from rating_algos.base_rating_algo import (
+    BaseRatingAlgo,
+    X_data,
+    Y_data,
+    Prediction,
+    PredictionRaw,
+    weighted_mean_with_w,
+)
 
 import logging
+
 
 class BaselineWinrate(BaseRatingAlgo):
     def __init__(self):
         super().__init__()
         self.initial_state = defaultdict(lambda: [0, 0])
-
 
     def set_initial_rating_estimates(self, rating_estimates):
         logging.debug(f"{type(self).__name__} doesn't use rating estimates.")
@@ -40,13 +47,17 @@ class BaselineWinrate(BaseRatingAlgo):
                 return 0.5
 
         def team_wr(p1, p2):
-            return weighted_mean_with_w(higher_rating_weight)([player_wr(p1), player_wr(p2)])
+            return weighted_mean_with_w(higher_rating_weight)(
+                [player_wr(p1), player_wr(p2)]
+            )
 
         return [
             PredictionRaw(
-                self._who_wins(0.5 + team_wr(game.a1, game.a2) - team_wr(game.b1, game.b2)),
+                self._who_wins(
+                    0.5 + team_wr(game.a1, game.a2) - team_wr(game.b1, game.b2)
+                ),
                 0.5 + 0.5 * (team_wr(game.a1, game.a2) - team_wr(game.b1, game.b2)),
-                ratings=tuple(player_wr(p) for p in game[:4])
+                ratings=tuple(player_wr(p) for p in game[:4]),
             )
             for game in x
         ]

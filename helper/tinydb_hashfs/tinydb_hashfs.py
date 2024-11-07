@@ -17,8 +17,8 @@ import itertools
 
 flatten = lambda i: list(itertools.chain.from_iterable(i))
 
-class SuperTinyDbObserver(RunObserver):
 
+class SuperTinyDbObserver(RunObserver):
     VERSION = "TinyDbObserver-{}".format(__version__)
 
     @classmethod
@@ -69,17 +69,14 @@ class SuperTinyDbObserver(RunObserver):
             self.db_run_id = db_run_id
 
     def save_sources(self, ex_info):
-
         source_info = []
         for source_name, md5 in ex_info["sources"]:
-
             # Substitute any HOME or Environment Vars to get absolute path
             abs_path = os.path.join(ex_info["base_dir"], source_name)
             abs_path = os.path.expanduser(abs_path)
             abs_path = os.path.expandvars(abs_path)
             # handle = BufferedReaderWrapper(open(abs_path, "rb"))
             # handle = ArchivableFilepath(abs_path)
-
 
             file = self.fs.get(md5)
             if file:
@@ -207,7 +204,9 @@ class SuperTinyDbReader:
 
     def search(self, *args, servers_only=False, **kwargs):
         """Wrapper to TinyDB's search function."""
-        return flatten([run.search(*args, **kwargs) for run in self._get_runs(servers_only)])
+        return flatten(
+            [run.search(*args, **kwargs) for run in self._get_runs(servers_only)]
+        )
 
     def fetch_files(self, exp_name=None, query=None, indices=None, servers_only=False):
         """Return Dictionary of files for experiment name or query.
@@ -229,7 +228,6 @@ class SuperTinyDbReader:
 
         all_matched_entries = []
         for ent in entries:
-
             rec = dict(
                 exp_name=ent["experiment"]["name"],
                 exp_id=ent["_id"],
@@ -252,7 +250,6 @@ class SuperTinyDbReader:
         return all_matched_entries
 
     def fetch_report(self, exp_name=None, query=None, indices=None, servers_only=False):
-
         template = """
 -------------------------------------------------
 Experiment: {exp_name}
@@ -284,7 +281,6 @@ Outputs:
 
         all_matched_entries = []
         for ent in entries:
-
             date = ent["start_time"]
             weekdays = "Mon Tue Wed Thu Fri Sat Sun".split()
             w = weekdays[date.weekday()]
@@ -327,7 +323,7 @@ Outputs:
                 resources=resources if resources else none_str,
                 sources=sources if sources else none_str,
                 artifacts=artifacts if artifacts else none_str,
-                hostname=hostname if hostname else none_str
+                hostname=hostname if hostname else none_str,
             )
 
             report = template.format(**rec)
@@ -336,7 +332,9 @@ Outputs:
 
         return all_matched_entries
 
-    def fetch_metadata(self, exp_name=None, query=None, indices=None, servers_only=False):
+    def fetch_metadata(
+        self, exp_name=None, query=None, indices=None, servers_only=False
+    ):
         """Return all metadata for matching experiment name, index or query."""
         from tinydb import Query
 
@@ -384,12 +382,13 @@ Outputs:
         # print({name: len(table.all()) for name, table in self.runs.items()})
         return [run for name, run in self.runs.items() if name not in non_servers]
 
-
     def _all_run_entries(self, servers_only):
-        return sorted(flatten([run.all() for run in self._get_runs(servers_only)]), key=lambda e: e["start_time"])
+        return sorted(
+            flatten([run.all() for run in self._get_runs(servers_only)]),
+            key=lambda e: e["start_time"],
+        )
 
     def _dict_to_indented_list(self, d):
-
         d = OrderedDict(sorted(d.items(), key=lambda t: t[0]))
 
         output_str = ""

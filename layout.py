@@ -14,8 +14,12 @@ from dao import BlockOfGames, load_from_db, GameProposed, db_name
 from matching_algos.task_input_output import TaskOutput
 
 
-def explanation_viz(task_output: TaskOutput, initial_game_block: BlockOfGames,
-                    print_viz=False, print_raw_to_terminal=False):
+def explanation_viz(
+    task_output: TaskOutput,
+    initial_game_block: BlockOfGames,
+    print_viz=False,
+    print_raw_to_terminal=False,
+):
     kwargs = {} if print_viz else {"file": io.StringIO()}
     c = Console(record=True, width=270, height=75, **kwargs)
 
@@ -31,11 +35,10 @@ def explanation_viz(task_output: TaskOutput, initial_game_block: BlockOfGames,
 
     layout["left"].update(
         Align.center(
-            print_table(task_output.input.player_ids,
-                        width=35,
-                        include_rd=False,
-                        print=False),
-            vertical="middle"
+            print_table(
+                task_output.input.player_ids, width=35, include_rd=False, print=False
+            ),
+            vertical="middle",
         )
     )
 
@@ -51,14 +54,13 @@ def explanation_viz(task_output: TaskOutput, initial_game_block: BlockOfGames,
     layout["middle"].split_column(
         Layout(matchup_grid, name="matchups"),
         Layout(name="cf2"),
-        )
+    )
 
     from explanations import generate_counterfactuals
+
     cfs = generate_counterfactuals(task_output, print_to_terminal=print_raw_to_terminal)
 
-    layout["right"].update(
-        Columns([cfs[0], "\n\n\n", cfs[1]])
-    )
+    layout["right"].update(Columns([cfs[0], "\n\n\n", cfs[1]]))
 
     layout["middle"]["cf2"].update(cfs[2])
 
@@ -67,7 +69,9 @@ def explanation_viz(task_output: TaskOutput, initial_game_block: BlockOfGames,
     from helper import get_timestamp
 
     c.save_html("explanations/latest.html", clear=False)
-    filepath = pathlib.Path(f"explanations/{db_name}_{get_timestamp()}_explanation.html")
+    filepath = pathlib.Path(
+        f"explanations/{db_name}_{get_timestamp()}_explanation.html"
+    )
     filepath.parent.mkdir(exist_ok=True)
     c.save_html(filepath, clear=False)
 
@@ -79,14 +83,10 @@ def save_table_as_html(player_ids: list[str]):
     layout = Layout()
     layout.update(
         Align.center(
-            print_table(player_ids,
-                        width=35,
-                        include_rd=False,
-                        print=False),
-            vertical="middle"
+            print_table(player_ids, width=35, include_rd=False, print=False),
+            vertical="middle",
         )
     )
 
     c.print(layout)
     c.save_html("explanations/latest_table.html", clear=True)
-

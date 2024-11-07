@@ -10,7 +10,7 @@ To runs this code on windows follow these steps:
 
 - Download the files to you local machine (either using git clone, or as a zip from the [releases section](https://github.com/sruettgers/automatic_matchmaking/releases)).
 - Move the `cmd_with_venv.bat` file from the helper folder to the folder above.
-- Make sure you have python 3.12 installed. It can be installed by using
+- Make sure you have python 3.12 installed. It can be installed from [the microsoft app store](https://apps.microsoft.com/detail/9ncvdn91xzqp).
 - Double-Click the `cmd_with_venv.bat` file. This will take some time (~3 mins) on the first run. Afterward it takes no additional time.
   - This creates a virtual environment, and downloads and installs the relevant packages. It does not install minizinc, which is not required to use the program.
 - You should now have a shell-window with the correct virtual environment activated.

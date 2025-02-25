@@ -179,6 +179,12 @@ def manage_the_pool(conf):
             pool.preview_pause(conf.pause_mode)
 
         elif cmd == "start_next_round":
+            if len(pool) < 4:
+                print(
+                    f"There are only {len(pool)} active players in the pool. Add some using 'add', 'add_new', or 'add_all_players'."
+                )
+                continue
+
             gameblock, task_output = pool.start_next_round(
                 conf.pause_mode,
                 num_sets="interactive",

@@ -626,6 +626,10 @@ class PlayerPool:
         default_factory=lambda: generate_id(PlayerPool.TABLE_NAME)
     )
 
+    def __len__(self):
+        """Returns the number of players willing to play the next round."""
+        return len(self.list_of_player_ids)
+
     def _save_changes(self):
         self.timestamp = time.time()
         save_to_db(self, update_if_exists=True)
@@ -709,6 +713,7 @@ class PlayerPool:
         )
 
         players = [get_player_from_id(pid) for pid in self.list_of_player_ids]
+        assert len(players) >= 4, "Not enough players to play a single game!"
         players.sort(key=lambda p: p.get_current_rating(), reverse=True)
         N_PLAYERS = len(players)
         N_SETS = _number_of_sets(num_sets, N_PLAYERS)

@@ -115,9 +115,9 @@ class Player:
     rating_snapshot: str
     games_played: int
     games_paused: int
-    games_won: int
-    games_lost: int
-    total_rating_change: int
+    games_won: int = 0
+    games_lost: int = 0
+    total_rating_change: float = 0.0
 
     TABLE_NAME: ClassVar[str] = "player"
     player_id: str = field(default_factory=lambda: generate_id(Player.TABLE_NAME))

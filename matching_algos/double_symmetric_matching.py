@@ -168,7 +168,7 @@ def get_symmetric_matching(C, timeout=120):
 def _get_symmetric_matching(C, timeout):
     start_time = time.time()
 
-    if type(C) != pd.core.frame.DataFrame:
+    if not isinstance(C, pd.core.frame.DataFrame):
         C = pd.DataFrame(C)
 
     nodes_visited = list()

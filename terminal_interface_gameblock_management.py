@@ -63,7 +63,7 @@ def load_unfinished_block_interactive():
         try:
             idx = int(choice)
             return unfinished_blocks[idx]
-        except:
+        except ValueError:
             print(
                 f"Could not deal with input {repr(choice)}. Try 'n' or the block index"
             )
@@ -171,7 +171,7 @@ def process_command(game_block: BlockOfGames, command: str):
                 p_a = int(points_a)
                 p_b = int(points_b)
 
-            except:
+            except ValueError:
                 print("Error parsing your input.")
                 return
 

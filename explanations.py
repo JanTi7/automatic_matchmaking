@@ -194,7 +194,6 @@ def generate_counterfactuals(
             print(f"Kein Counterfactual für {field} gefunden!")
             continue
 
-
         possible_counterfactuals = list(
             sorted(possible_counterfactuals, key=lambda t: t[:2])
         )
@@ -295,7 +294,7 @@ def generate_counterfactuals(
                 title, "Verändertes Pairing:", names_and_cost(altered_original_matchup)
             )
 
-            diff_idxs = find_both_diffs(matchups[candidate], altered_original_matchup)
+            # diff_idxs = find_both_diffs(matchups[candidate], altered_original_matchup)
             # print("diff_idxs", diff_idxs)
             persons_who_switched = [
                 idx2name[idx] for idx in best_counterfactual_swap_idxs
@@ -347,11 +346,11 @@ def generate_counterfactuals(
                 names_and_cost(best_counterfactual[other_changed_matchup]),
             )
 
-            diff_idx1 = find_diff(matchups[candidate], altered_original_matchup)
-            diff_idx2 = find_diff(
-                matchups[other_changed_matchup],
-                best_counterfactual[other_changed_matchup],
-            )
+            # diff_idx1 = find_diff(matchups[candidate], altered_original_matchup)
+            # diff_idx2 = find_diff(
+            #     matchups[other_changed_matchup],
+            #     best_counterfactual[other_changed_matchup],
+            # )
 
             persons_who_switched = [
                 idx2name[idx] for idx in best_counterfactual_swap_idxs

@@ -1,9 +1,12 @@
 import random
 import logging
+import secrets
 from rich.console import Console
 from dao import use_database, load_from_db
 from dao import PlayerPool, GameProposed
 from dao import add_new_player
+from viz import print_full_table
+
 
 from matching_algos.helpers import calc_rdm_result
 
@@ -21,8 +24,6 @@ assert args.db is None
 parser.print_values()
 
 console = Console(record=True)
-
-import secrets
 
 db_name = f"mock_runs/mock_run_{secrets.token_hex(4)}.json"
 use_database(db_name, create_new=True)
@@ -108,7 +109,5 @@ for round_idx in range(args.n_rounds):
 
     save_table_as_html(pool.everybody())
 
-
-from viz import print_full_table
 
 print_full_table()

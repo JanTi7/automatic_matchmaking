@@ -11,8 +11,8 @@ Prediction = namedtuple("Prediction", "winning_team point_diff")
 
 
 def weighted_mean_with_w(higher_rating_weight):
-    def weighted_mean(l: list):
-        low, high = sorted(l)
+    def weighted_mean(values: list):
+        low, high = sorted(values)
         high *= higher_rating_weight
         return (low + high) / (higher_rating_weight + 1)
 

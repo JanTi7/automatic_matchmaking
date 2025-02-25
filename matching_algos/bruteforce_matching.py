@@ -38,12 +38,12 @@ class BruteforceMatcher(BaseMatchingAlgo):
         self, task_input: TaskInput, run_parallel=True, time_limit=None
     ) -> TaskOutput:
         # run parallel seems to be important for bug reasons
-        start_time = time.time()
+        # start_time = time.time()
         cost_calc = MatchupCostCalculator.from_taskinput(task_input)
 
         N = len(task_input.rating_list)
 
-        tuple_calc_start_time = time.time()
+        # tuple_calc_start_time = time.time()
         all_parts = list()
         for tuple_of_four in itertools.combinations(range(N), 4):
             all_parts.append(cost_calc.min_cost_for_tuple(tuple_of_four))
@@ -84,7 +84,6 @@ class BruteforceMatcher(BaseMatchingAlgo):
             # print("scipy exited")
 
         else:
-
             combs = [
                 (self.presolve, self.mip_rel_gap),
                 # (False, 0),

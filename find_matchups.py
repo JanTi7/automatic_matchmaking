@@ -191,7 +191,7 @@ def find_and_viz_solution(
     add_to_model=None,
     live_updates=False,
 ):
-    start_time = time.time()
+    # start_time = time.time()
 
     if log_tasks:
         from task_logger import TaskLogger

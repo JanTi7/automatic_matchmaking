@@ -1,4 +1,3 @@
-
 import rich
 from rich.console import Console
 from rich.panel import Panel
@@ -96,7 +95,7 @@ def viz_block_of_games(block_of_games, print=True) -> list[rich.table]:
         (idx, GameResult(**load_from_db(gres_id)))
         for idx, gres_id in block_of_games.results.items()
     ]:
-        ratings_pre = game.ratings_pre_result()
+        # ratings_pre = game.ratings_pre_result()
         ratings_post = game.ratings_post_result(log=False)
 
         panels = list()

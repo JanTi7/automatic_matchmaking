@@ -7,6 +7,8 @@ from tinydb import TinyDB, Query
 from dataclasses import dataclass, asdict, field
 from typing import ClassVar, Optional, Callable
 from datetime import timedelta
+from functools import cache
+
 
 from rich.console import Console
 from rich.columns import Columns
@@ -36,9 +38,12 @@ def set_default_database(db_name):
     (DB_DIR / ".default").write_text(db_name)
 
 
-def use_database(db_name, create_new=False, init_logging=True, read_only=False, print_ascii=True):
+def use_database(
+    db_name, create_new=False, init_logging=True, read_only=False, print_ascii=True
+):
     if print_ascii:
         import pyfiglet
+
         pyfiglet.print_figlet(f"Using database: {db_name}")
 
     # print(f"Using database: {db_name}")
@@ -47,35 +52,45 @@ def use_database(db_name, create_new=False, init_logging=True, read_only=False, 
 
     if not create_new:
         if not FILE_TO_LOAD.exists():
-            raise FileNotFoundError(f"There is no database at {FILE_TO_LOAD}. Try creating one first or use a flag.")
+            raise FileNotFoundError(
+                f"There is no database at {FILE_TO_LOAD}. Try creating one first or use a flag."
+            )
 
     FILE_TO_LOAD.parent.mkdir(parents=True, exist_ok=True)
 
-    read_only_flag = dict(access_mode='r') if read_only else dict()
+    read_only_flag = dict(access_mode="r") if read_only else dict()
 
     globals()["db_name"] = db_name
-    globals()["db"] = TinyDB(FILE_TO_LOAD,
-                             ensure_ascii=False,
-                             sort_keys=True, indent=4, separators=(',', ': '),
-                             **read_only_flag)
+    globals()["db"] = TinyDB(
+        FILE_TO_LOAD,
+        ensure_ascii=False,
+        sort_keys=True,
+        indent=4,
+        separators=(",", ": "),
+        **read_only_flag,
+    )
 
     if init_logging:
         import datetime
         import socket
+
         filename = f'logs/{db_name.split(".")[0]}_{datetime.date.today()}_{socket.gethostname()}.log'
         pathlib.Path(filename).parent.mkdir(parents=True, exist_ok=True)
-        logging.basicConfig(filename=filename,
-                            encoding='utf-8',
-                            level=logging.DEBUG,
-                            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-                            )
+        logging.basicConfig(
+            filename=filename,
+            encoding="utf-8",
+            level=logging.DEBUG,
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        )
 
         def handle_exception(exc_type, exc_value, exc_traceback):
             if issubclass(exc_type, KeyboardInterrupt):
                 sys.__excepthook__(exc_type, exc_value, exc_traceback)
                 return
 
-            logging.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+            logging.critical(
+                "Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback)
+            )
             print((exc_type, exc_value, exc_traceback))
 
         sys.excepthook = handle_exception
@@ -121,12 +136,14 @@ class Player:
         return RatingSnapshot(**rating)
 
     def get_current_rating(self):
-        import numpy
         return self.get_rating_snapshot().rating  # + numpy.random.normal(0, 0.5)
 
     def to_panel(self, id2name: dict, style="none"):
-        return Panel(f"[b]{id2name[self.player_id]}[/b]", subtitle=str(self.get_current_rating()),
-                     style=style)
+        return Panel(
+            f"[b]{id2name[self.player_id]}[/b]",
+            subtitle=str(self.get_current_rating()),
+            style=style,
+        )
 
 
 def get_player_from_id(player_id):
@@ -135,7 +152,8 @@ def get_player_from_id(player_id):
         player_dict = player_table.search(Entry.player_id == player_id)[0]
     except IndexError:
         raise IndexError(
-            f"No player with id {repr(player_id)}. Player ids are {[d['player_id'] for d in player_table.all()]}")
+            f"No player with id {repr(player_id)}. Player ids are {[d['player_id'] for d in player_table.all()]}"
+        )
     return Player(**player_dict)
 
 
@@ -145,9 +163,6 @@ def get_all_players():
     return [Player(**e) for e in player_table.all()]
 
 
-from functools import cache
-
-
 def generate_playerid_to_uniquename_map(list_of_pids: list, bold_first_name=False):
     tuple_of_pids = tuple(sorted(list_of_pids))
     return _generate_playerid_to_uniquename_map(tuple_of_pids, bold_first_name)
@@ -155,7 +170,6 @@ def generate_playerid_to_uniquename_map(list_of_pids: list, bold_first_name=Fals
 
 @cache
 def _generate_playerid_to_uniquename_map(tuple_of_pids: tuple, bold_first_name=False):
-    from collections import defaultdict
     name2id = defaultdict(set)
 
     # if the list is empty, assume all pids
@@ -165,7 +179,9 @@ def _generate_playerid_to_uniquename_map(tuple_of_pids: tuple, bold_first_name=F
         player_pool = get_all_players()
 
     for player in player_pool:
-        name2id[player.get_name(depth=0, bold_first_name=bold_first_name)].add(player.player_id)
+        name2id[player.get_name(depth=0, bold_first_name=bold_first_name)].add(
+            player.player_id
+        )
 
     names_to_remove = list()
     items_to_add = list()
@@ -176,13 +192,23 @@ def _generate_playerid_to_uniquename_map(tuple_of_pids: tuple, bold_first_name=F
         names_to_remove.append(name)
         final_depth = None
         for depth in range(1, 99):
-            new_names = {get_player_from_id(pid).get_name(depth, bold_first_name=bold_first_name) for pid in pids}
+            new_names = {
+                get_player_from_id(pid).get_name(depth, bold_first_name=bold_first_name)
+                for pid in pids
+            }
             if len(new_names) == len(pids):
                 final_depth = depth
                 break
 
         for pid in pids:
-            items_to_add.append((get_player_from_id(pid).get_name(final_depth, bold_first_name=bold_first_name), pid))
+            items_to_add.append(
+                (
+                    get_player_from_id(pid).get_name(
+                        final_depth, bold_first_name=bold_first_name
+                    ),
+                    pid,
+                )
+            )
 
     for name_to_remove in names_to_remove:
         name2id.pop(name_to_remove)
@@ -190,17 +216,16 @@ def _generate_playerid_to_uniquename_map(tuple_of_pids: tuple, bold_first_name=F
     for name, pid in items_to_add:
         name2id[name].add(pid)
 
-    id2name = {
-        list(val)[0]: key
-        for key, val in name2id.items()
-    }
+    id2name = {list(val)[0]: key for key, val in name2id.items()}
 
     globals()["id2name"].update(id2name)
 
     return id2name
 
 
-def time_adjust_rd(old_rd, time_passed: timedelta, max_rd=155, inc_constant=25, max_inc=100):
+def time_adjust_rd(
+    old_rd, time_passed: timedelta, max_rd=155, inc_constant=25, max_inc=100
+):
     if old_rd > max_rd:
         return old_rd
 
@@ -209,9 +234,10 @@ def time_adjust_rd(old_rd, time_passed: timedelta, max_rd=155, inc_constant=25, 
         weeks_passed += 1
 
     from math import sqrt
+
     rd = old_rd
     for _ in range(weeks_passed):
-        rd = min(sqrt(rd ** 2 + inc_constant ** 2), max_rd)
+        rd = min(sqrt(rd**2 + inc_constant**2), max_rd)
 
     diff = rd - old_rd
 
@@ -228,7 +254,9 @@ class StartOfPeriodRating:
     previous_period_id: str
 
     TABLE_NAME: ClassVar[str] = "pe_rating"
-    pe_rating_id: str = field(default_factory=lambda: generate_id(StartOfPeriodRating.TABLE_NAME))
+    pe_rating_id: str = field(
+        default_factory=lambda: generate_id(StartOfPeriodRating.TABLE_NAME)
+    )
 
 
 @dataclass
@@ -237,7 +265,9 @@ class IntermediateRating:
     pe_rating_id: str
 
     TABLE_NAME: ClassVar[str] = "inter_rating"
-    inter_rating_id: str = field(default_factory=lambda: generate_id(IntermediateRating.TABLE_NAME))
+    inter_rating_id: str = field(
+        default_factory=lambda: generate_id(IntermediateRating.TABLE_NAME)
+    )
 
 
 @dataclass
@@ -253,7 +283,9 @@ class RatingSnapshot:
     parent_id: str = "None"  # either a StartOfPeriodRating or an IntermediateRating
 
     TABLE_NAME: ClassVar[str] = "rating_snap"
-    rating_snap_id: str = field(default_factory=lambda: generate_id(RatingSnapshot.TABLE_NAME))
+    rating_snap_id: str = field(
+        default_factory=lambda: generate_id(RatingSnapshot.TABLE_NAME)
+    )
 
     def __post_init__(self):
         self.rating = int(round(self.rating, 0))
@@ -263,7 +295,10 @@ class RatingSnapshot:
 
     def to_glicko2_player(self):
         from algo_glicko2 import Glicko2Player
-        return Glicko2Player(rating=self.rating, rd=self.rd, vol=self.vol, pid=self.player_id)
+
+        return Glicko2Player(
+            rating=self.rating, rd=self.rd, vol=self.vol, pid=self.player_id
+        )
 
 
 @dataclass
@@ -278,13 +313,18 @@ class BlockOfGames:
 
     timestamp: float = field(default_factory=time.time)
     TABLE_NAME: ClassVar[str] = "block_of_games"
-    block_of_games_id: str = field(default_factory=lambda: generate_id(BlockOfGames.TABLE_NAME))
+    block_of_games_id: str = field(
+        default_factory=lambda: generate_id(BlockOfGames.TABLE_NAME)
+    )
 
     def draw(self):
         from viz import viz_block_of_games
+
         viz_block_of_games(self)
 
-    def register_result(self, local_game_idx, points_a, points_b, timestamp: Optional[float] = None):
+    def register_result(
+        self, local_game_idx, points_a, points_b, timestamp: Optional[float] = None
+    ):
         game = GameProposed(**load_from_db(self.proposed[local_game_idx]))
         pp_dict = asdict(game)
         pp_dict.pop("game_pp_id")
@@ -293,16 +333,11 @@ class BlockOfGames:
         if timestamp:
             pp_dict["timestamp"] = timestamp
 
-        game_res = GameResult(
-            points_a=points_a,
-            points_b=points_b,
-            **pp_dict
-        )
+        game_res = GameResult(points_a=points_a, points_b=points_b, **pp_dict)
         self.results[local_game_idx] = game_res.game_res_id
         del self.proposed[local_game_idx]
         save_to_db(game_res)
         save_to_db(self, update_if_exists=True)
-
 
     def unregister_result(self, local_game_idx):
         game = GameResult(**load_from_db(self.results[local_game_idx]))
@@ -312,9 +347,7 @@ class BlockOfGames:
         pp_dict.pop("points_a")
         pp_dict.pop("points_b")
 
-        game_res = GameProposed(
-            **pp_dict
-        )
+        game_res = GameProposed(**pp_dict)
         self.proposed[local_game_idx] = game_res.game_pp_id
         del self.results[local_game_idx]
         save_to_db(game_res)
@@ -359,8 +392,9 @@ def save_block_of_games(block: BlockOfGames):
 
 def load_unfinished_blocks_of_games():
     block_table = db.table(BlockOfGames.TABLE_NAME)
-    return [BlockOfGames(**entry) for entry in
-            block_table.search(Entry.committed == False)]
+    return [
+        BlockOfGames(**entry) for entry in block_table.search(Entry.committed == False)
+    ]
 
 
 def remove_all_unfinished_blocks_of_games():
@@ -379,16 +413,21 @@ class GameProposed:
     importance: float = 1.0
 
     TABLE_NAME: ClassVar[str] = "game_pp"
-    game_pp_id: str = field(default_factory=lambda: generate_id(GameProposed.TABLE_NAME))
+    game_pp_id: str = field(
+        default_factory=lambda: generate_id(GameProposed.TABLE_NAME)
+    )
     timestamp: float = field(default_factory=time.time)
 
     def draw(self, local_idx=""):
         from viz import viz_single_game
+
         viz_single_game(self, local_idx=local_idx)
 
     def players(self):
         return Participants(
-            *_rsnaps_to_pids(self.rsnap_a_1, self.rsnap_a_2, self.rsnap_b_1, self.rsnap_b_2)
+            *_rsnaps_to_pids(
+                self.rsnap_a_1, self.rsnap_a_2, self.rsnap_b_1, self.rsnap_b_2
+            )
         )
 
 
@@ -424,6 +463,7 @@ class GameResult:
 
     def draw(self, local_idx=""):
         from viz import viz_single_game
+
         viz_single_game(self, local_idx=local_idx)
 
     def did_player_win(self, player_id):
@@ -432,14 +472,20 @@ class GameResult:
         elif player_id in (self.players().b1, self.players().b2):
             return self.points_a < self.points_b
         else:
-            raise ValueError(f"Player with id {player_id} did not participate in game {asdict(self)}")
+            raise ValueError(
+                f"Player with id {player_id} did not participate in game {asdict(self)}"
+            )
 
     def ratings_pre_result(self):
-        return tuple(RatingSnapshot(**load_from_db(rsnap_id))
-                     for rsnap_id in
-                     (self.rsnap_a_1, self.rsnap_a_2,
-                      self.rsnap_b_1, self.rsnap_b_2))
-
+        return tuple(
+            RatingSnapshot(**load_from_db(rsnap_id))
+            for rsnap_id in (
+                self.rsnap_a_1,
+                self.rsnap_a_2,
+                self.rsnap_b_1,
+                self.rsnap_b_2,
+            )
+        )
 
     def ratings_post_result(self, log=True):
         rating_a_1 = RatingSnapshot(**load_from_db(self.rsnap_a_1))
@@ -458,25 +504,34 @@ class GameResult:
 
         if log:
             logging.info(
-                f"Registering game result from {id2name.get(player.player_id, player.player_id)} & {id2name.get(player1.player_id, player1.player_id)} vs {id2name.get(player2.player_id, player2.player_id)} & {id2name.get(player3.player_id, player3.player_id)}")
+                f"Registering game result from {id2name.get(player.player_id, player.player_id)} & {id2name.get(player1.player_id, player1.player_id)} vs {id2name.get(player2.player_id, player2.player_id)} & {id2name.get(player3.player_id, player3.player_id)}"
+            )
             logging.info(f"Match result was {self.points_a} - {self.points_b}")
 
         return register_game_result(
             self.game_res_id,
-            rating_a_1, rating_a_2, rating_b_1, rating_b_2,
-            points_a=self.points_a, points_b=self.points_b
+            rating_a_1,
+            rating_a_2,
+            rating_b_1,
+            rating_b_2,
+            points_a=self.points_a,
+            points_b=self.points_b,
         )
 
     def players(self):
         return Participants(
-            *_rsnaps_to_pids(self.rsnap_a_1, self.rsnap_a_2, self.rsnap_b_1, self.rsnap_b_2)
+            *_rsnaps_to_pids(
+                self.rsnap_a_1, self.rsnap_a_2, self.rsnap_b_1, self.rsnap_b_2
+            )
         )
 
 
 def get_all_games_in_timewindow(delta: timedelta, verbose=False):
     gameblock_table = db.table(BlockOfGames.TABLE_NAME)
     all_relevant_blocks = gameblock_table.search(
-        (Entry.timestamp >= time.time() - delta.total_seconds()) & (Entry.committed == True))
+        (Entry.timestamp >= time.time() - delta.total_seconds())
+        & (Entry.committed == True)
+    )
 
     games = list()
     for block in [BlockOfGames(**data) for data in all_relevant_blocks]:
@@ -492,7 +547,9 @@ def get_participants_from_last_matches(delta: timedelta, verbose=False):
 
     gameblock_table = db.table(BlockOfGames.TABLE_NAME)
     all_relevant_blocks = gameblock_table.search(
-        (Entry.timestamp >= time.time() - delta.total_seconds()) & (Entry.committed == True))
+        (Entry.timestamp >= time.time() - delta.total_seconds())
+        & (Entry.committed == True)
+    )
 
     if verbose:
         print("[DAO] [played together] Blocks:", all_relevant_blocks)
@@ -514,6 +571,7 @@ def get_participants_from_last_matches(delta: timedelta, verbose=False):
 
 def _number_of_sets(num_sets, num_players):
     from prompt_toolkit import prompt
+
     if num_sets is None:
         N_SETS = int(num_players // 4)
     elif num_sets == "interactive":
@@ -550,8 +608,10 @@ def get_matching_algo_from_str(matching_algo_str) -> Callable[[], BaseMatchingAl
     try:
         return algo_dict[matching_algo_str]
     except KeyError:
-        logging.error(f"Could not find matching algo with name {repr(matching_algo_str)}. "
-                      f"Using default algo. Available Options are {list(algo_dict.keys())}.")
+        logging.error(
+            f"Could not find matching algo with name {repr(matching_algo_str)}. "
+            f"Using default algo. Available Options are {list(algo_dict.keys())}."
+        )
         return algo_dict["default"]
 
 
@@ -562,7 +622,9 @@ class PlayerPool:
     players_voluntarily_pausing: list = field(default_factory=list)
 
     TABLE_NAME: ClassVar[str] = "player_pool"
-    player_pool_id: str = field(default_factory=lambda: generate_id(PlayerPool.TABLE_NAME))
+    player_pool_id: str = field(
+        default_factory=lambda: generate_id(PlayerPool.TABLE_NAME)
+    )
 
     def _save_changes(self):
         self.timestamp = time.time()
@@ -606,15 +668,22 @@ class PlayerPool:
 
         console = Console(width=min(Console().width, 100))
         cwidth = console.width
-        unpaused_panels = [get_player_from_id(p_id).to_panel(id2name) for p_id in self.list_of_player_ids]
-        paused_panels = [get_player_from_id(p_id).to_panel(id2name, style="on #aa2222") for p_id in
-                         self.players_voluntarily_pausing]
-        console.print(Columns(
-            unpaused_panels + paused_panels, width=(cwidth - 16) // 4))
+        unpaused_panels = [
+            get_player_from_id(p_id).to_panel(id2name)
+            for p_id in self.list_of_player_ids
+        ]
+        paused_panels = [
+            get_player_from_id(p_id).to_panel(id2name, style="on #aa2222")
+            for p_id in self.players_voluntarily_pausing
+        ]
+        console.print(
+            Columns(unpaused_panels + paused_panels, width=(cwidth - 16) // 4)
+        )
 
     def preview_pause(self, pause_mode, num_sets=None):
         from prompt_toolkit import prompt
         from find_matchups import select_players_to_pause
+
         players = [get_player_from_id(pid) for pid in self.list_of_player_ids]
         N_PLAYERS = len(players)
         if num_sets is None:
@@ -624,13 +693,20 @@ class PlayerPool:
             N_SETS = num_sets
         select_players_to_pause(players, N_PLAYERS - N_SETS * 4, pause_mode)
 
-    def start_next_round(self, pause_mode,
-                         higher_rating_weight,
-                         num_sets=None,
-                         matching_algo: Optional[str | Callable[[], BaseMatchingAlgo]] = None,
-                         log_task=False,
-                         return_task_output=False) -> BlockOfGames | tuple[BlockOfGames, TaskOutput]:
-        from find_matchups import select_players_to_pause, find_and_viz_solution, WeightMatrixManager
+    def start_next_round(
+        self,
+        pause_mode,
+        higher_rating_weight,
+        num_sets=None,
+        matching_algo: Optional[str | Callable[[], BaseMatchingAlgo]] = None,
+        log_task=False,
+        return_task_output=False,
+    ) -> BlockOfGames | tuple[BlockOfGames, TaskOutput]:
+        from find_matchups import (
+            select_players_to_pause,
+            find_and_viz_solution,
+            WeightMatrixManager,
+        )
 
         players = [get_player_from_id(pid) for pid in self.list_of_player_ids]
         players.sort(key=lambda p: p.get_current_rating(), reverse=True)
@@ -645,19 +721,25 @@ class PlayerPool:
             else:
                 matcher = matching_algo()
 
-        players_to_play, players_to_pause = select_players_to_pause(players, N_PLAYERS - N_SETS * 4, pause_mode)
+        players_to_play, players_to_pause = select_players_to_pause(
+            players, N_PLAYERS - N_SETS * 4, pause_mode
+        )
 
         matrix_manager = WeightMatrixManager(players_to_play)
-        task_input = matrix_manager.get_task_input(higher_rating_weight=higher_rating_weight)
+        task_input = matrix_manager.get_task_input(
+            higher_rating_weight=higher_rating_weight
+        )
         task_output = matcher.find_matching(task_input, log_task=log_task)
         # task_output.viz_result(pathlib.Path("/tmp/manager_viz"))
 
         proposed_games = task_output.convert_to_proposed_games(matrix_manager)
         for game in proposed_games:
             save_to_db(game)
-        gameblock = BlockOfGames(proposed={str(idx): g.game_pp_id for idx, g in enumerate(proposed_games)},
-                                 players_pausing=[p.player_id for p in
-                                                  players_to_pause] + self.players_voluntarily_pausing)
+        gameblock = BlockOfGames(
+            proposed={str(idx): g.game_pp_id for idx, g in enumerate(proposed_games)},
+            players_pausing=[p.player_id for p in players_to_pause]
+            + self.players_voluntarily_pausing,
+        )
         save_to_db(gameblock)
 
         if return_task_output:
@@ -669,6 +751,7 @@ class PlayerPool:
 def save_to_db(data, update_if_exists=False, verbose=False):
     if verbose:
         from pprint import pprint
+
         pprint(data)
 
     table = db.table(data.TABLE_NAME)
@@ -679,20 +762,24 @@ def save_to_db(data, update_if_exists=False, verbose=False):
         table.upsert(asdict(data), Entry[id_name] == getattr(data, id_name))
     else:
         if hasattr(data, id_name):
-            assert len(table.search(Entry[id_name] == getattr(data, id_name))) == 0, "Entry with this id already exists"
+            assert (
+                len(table.search(Entry[id_name] == getattr(data, id_name))) == 0
+            ), "Entry with this id already exists"
         table.insert(asdict(data))
 
 
 def load_from_db(id_str):
     # print("LOAD FROM DB", repr(id_str))
     # print(f"Trying to load {id_str} from db!")
-    table_name = id_str[:id_str.rfind("_")]  # Should always be right in our case
+    table_name = id_str[: id_str.rfind("_")]  # Should always be right in our case
     id_name = table_name + "_id"
     table = db.table(table_name)
     try:
         return table.search(Entry[id_name] == id_str)[0]
     except IndexError:
-        raise IndexError(f"Table {table_name} does not contain an element with {id_name} {repr(id_str)}")
+        raise IndexError(
+            f"Table {table_name} does not contain an element with {id_name} {repr(id_str)}"
+        )
 
 
 def load_last_player_pool():
@@ -715,6 +802,7 @@ def load_player_pool_interactive():
         return last_player_pool
 
     from prompt_toolkit.shortcuts import confirm
+
     if confirm(f"The last pool is {time_passed} old. Do you wish to load it? "):
         return last_player_pool
     return None
@@ -722,6 +810,7 @@ def load_player_pool_interactive():
 
 def generate_id(prefix):
     from collections import defaultdict
+
     prefix2nbytes = defaultdict(lambda: 4)
     prefix2nbytes["player"] = 2
 
@@ -729,6 +818,7 @@ def generate_id(prefix):
     set_of_other_ids = {e.get(f"{prefix}_id", None) for e in table.all()}
 
     import secrets
+
     while True:
         id = f"{prefix}_{secrets.token_hex(prefix2nbytes[prefix])}"
         if id not in set_of_other_ids:
@@ -740,26 +830,42 @@ def add_new_player(first_name, last_name, init_rating, init_rd, player_id=None):
 
     ## check if player with same name is already in system
 
-    same_name = player_table.search((Entry.first_name == first_name) & (Entry.last_name == last_name))
+    same_name = player_table.search(
+        (Entry.first_name == first_name) & (Entry.last_name == last_name)
+    )
     if len(same_name) > 0:
-        print("THERE ALREADY IS A PLAY WITH THE EXACT SAME NAMES IN THE SYSTEM, SKIPPING!")
+        print(
+            "THERE ALREADY IS A PLAY WITH THE EXACT SAME NAMES IN THE SYSTEM, SKIPPING!"
+        )
         return same_name[0]["player_id"]
 
-    new_id = f"{Player.TABLE_NAME}_{player_id}" if player_id is not None else generate_id(Player.TABLE_NAME)
+    new_id = (
+        f"{Player.TABLE_NAME}_{player_id}"
+        if player_id is not None
+        else generate_id(Player.TABLE_NAME)
+    )
     # new_id = generate_id(Player.TABLE_NAME)  # needs to be done explicitly here bc we need it for the snapshot
 
-    initial_rating_snapshot = RatingSnapshot(player_id=new_id,
-                                             timestamp=time.time(),
-                                             rating=init_rating,
-                                             rd=init_rd,
-                                             vol=0.06,
-                                             game_res_id="__INIT__",
-                                             )
+    initial_rating_snapshot = RatingSnapshot(
+        player_id=new_id,
+        timestamp=time.time(),
+        rating=init_rating,
+        rd=init_rd,
+        vol=0.06,
+        game_res_id="__INIT__",
+    )
 
-    new_player = Player(player_id=new_id, first_name=first_name.strip(), last_name=last_name.strip(),
-                        games_played=0, games_paused=0,
-                        rating_snapshot=initial_rating_snapshot.rating_snap_id,
-                        games_lost=0, games_won=0, total_rating_change=0)
+    new_player = Player(
+        player_id=new_id,
+        first_name=first_name.strip(),
+        last_name=last_name.strip(),
+        games_played=0,
+        games_paused=0,
+        rating_snapshot=initial_rating_snapshot.rating_snap_id,
+        games_lost=0,
+        games_won=0,
+        total_rating_change=0,
+    )
 
     save_to_db(initial_rating_snapshot)
     save_to_db(new_player)
@@ -772,8 +878,10 @@ def add_new_player(first_name, last_name, init_rating, init_rd, player_id=None):
 def get_all_names():
     player_table = db.table(Player.TABLE_NAME)
 
-    all_names = [(e["first_name"] + " " + e["last_name"], e["player_id"])
-                 for e in player_table.search(Entry.player_id.exists())]
+    all_names = [
+        (e["first_name"] + " " + e["last_name"], e["player_id"])
+        for e in player_table.search(Entry.player_id.exists())
+    ]
 
     if len(all_names) == 0:
         return list(), list()
@@ -792,19 +900,32 @@ def get_games_for_prediction() -> (list[list[X_data]], list[list[Y_data]]):
 
     all_blocks = sorted(block_table.all(), key=lambda d: d.doc_id)
 
-    for block in [block for b in all_blocks if (block := BlockOfGames(**b)) and len(block.results) > 0]:
+    for block in [
+        block
+        for b in all_blocks
+        if (block := BlockOfGames(**b)) and len(block.results) > 0
+    ]:
         x.append(
-            [X_data(*g.players(), g.timestamp, g.game_res_id) for game in block.results.values()
-             if (g := GameResult(**load_from_db(game)))]
+            [
+                X_data(*g.players(), g.timestamp, g.game_res_id)
+                for game in block.results.values()
+                if (g := GameResult(**load_from_db(game)))
+            ]
         )
         y.append(
-            [Y_data(g.points_a, g.points_b) for game in block.results.values() if
-             (g := GameResult(**load_from_db(game)))]
+            [
+                Y_data(g.points_a, g.points_b)
+                for game in block.results.values()
+                if (g := GameResult(**load_from_db(game)))
+            ]
         )
 
         rating_estimates.append(
-            [(g.game_res_id,) + tuple(g.ratings_pre_result()) for game in block.results.values()
-             if (g := GameResult(**load_from_db(game)))]
+            [
+                (g.game_res_id,) + tuple(g.ratings_pre_result())
+                for game in block.results.values()
+                if (g := GameResult(**load_from_db(game)))
+            ]
         )
 
     return x, y, rating_estimates
@@ -822,6 +943,7 @@ def get_initial_rating_estimates() -> dict[str, int]:
 
 def import_from_excel(filepath, start_rd=125):
     from openpyxl import load_workbook
+
     wb = load_workbook(filename=filepath)
     sheet = wb.active
 
@@ -840,15 +962,18 @@ def import_from_excel(filepath, start_rd=125):
             except ValueError:
                 firstname, lastname = name, "1"
 
-            add_new_player(firstname, lastname, rating, start_rd, player_id=current_cell.value)
+            add_new_player(
+                firstname, lastname, rating, start_rd, player_id=current_cell.value
+            )
             players_added += 1
 
             print("Adding", firstname, lastname, int(rating))
 
         elif (name, rating) != (None, None):
-            logging.warning(f"Zeile {current_cell.value} unvollständig. Skipping. {name=} {rating=}")
+            logging.warning(
+                f"Zeile {current_cell.value} unvollständig. Skipping. {name=} {rating=}"
+            )
 
         current_cell = current_cell.offset(1, 0)
 
     print(f"Added {players_added} players.")
-

@@ -36,7 +36,7 @@ class RandomMatcher(BaseMatchingAlgo):
         return self.cost_calculator.min_cost_for_tuple(tup)[1]
 
     def _find_matching_tries(self, task_input: TaskInput) -> TaskOutput:
-        start_time = time.time()
+        # start_time = time.time()
         opt = lambda t: self._opt(task_input, t)
 
         min = float("inf")

@@ -23,7 +23,7 @@ class BruteforceMatcherMinizinc(BaseMatchingAlgo):
 
         N = len(task_input.rating_list)
 
-        tuple_calc_start_time = time.time()
+        # tuple_calc_start_time = time.time()
         all_parts = list()
         for tuple_of_four in itertools.combinations(range(N), 4):
             all_parts.append(cost_calc.min_cost_for_tuple(tuple_of_four))
@@ -61,8 +61,6 @@ class BruteforceMatcherMinizinc(BaseMatchingAlgo):
                 seconds=max(10.0, self.timeout - (time.time() - start_time))
             ),
         )
-
-        x = result.solution.x
 
         selected_matchups = np.array(np.rint(result.solution.x), dtype=int)
 

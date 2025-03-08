@@ -269,7 +269,7 @@ def print_full_table():
     print_table([p.player_id for p in get_all_players()])
 
 
-def print_table(list_of_pids, include_rd=True, width=None, print=True) -> rich.table:
+def print_table(list_of_pids, include_rd=True, width=None, print=True, include_won_lost_change=True) -> rich.table:
     from dao import generate_playerid_to_uniquename_map
 
     id2name = generate_playerid_to_uniquename_map(list_of_pids)
@@ -291,6 +291,10 @@ def print_table(list_of_pids, include_rd=True, width=None, print=True) -> rich.t
     if include_rd:
         table.add_column("RD", justify="right")
     table.add_column("Rating", justify="right")
+    if include_won_lost_change:
+        table.add_column("Games Won", justify="right")
+        table.add_column("Games Lost", justify="right")
+        table.add_column("Total Rating Change", justify="right")
 
     for idx, player in enumerate(players):
         full_rating = player.get_rating_snapshot()
@@ -301,6 +305,9 @@ def print_table(list_of_pids, include_rd=True, width=None, print=True) -> rich.t
             place_str = ""
 
         data = [place_str, id2name[player.player_id], str(int(full_rating.rating))]
+
+        if include_won_lost_change:
+            data.extend([str(player.games_won), str(player.games_lost), str(player.total_rating_change)])
 
         if include_rd:
             data.insert(2, str(int(full_rating.rd)))

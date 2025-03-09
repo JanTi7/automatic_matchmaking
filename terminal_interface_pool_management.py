@@ -52,6 +52,7 @@ def make_completer(list_of_player_ids_in_pool, list_of_players_voluntarily_pausi
             "preview_pause": None,
             "table": None,
             "table_full": None,
+            "config_table": None,
             "exit": None,
         }
     )
@@ -98,6 +99,41 @@ def manage_the_pool(conf):
             from viz import print_full_table
 
             print_full_table()
+
+        elif cmd == "config_table":
+            from dao import TableConfig
+            from dao import load_table_config
+            from dao import save_to_db
+            from viz import choose_table_columns, choose_table_sorting_criterion,choose_table_coloring
+
+            try: 
+                old_config:TableConfig = load_table_config()
+            except IndexError:
+                print("Couldn't find table config in Database. Will be using new one with default values.")
+                old_config = TableConfig(columns_to_display=["Rating", "Games Played", "Win Percentage"],
+                                           sort_by="Rating",
+                                           coloring=False)
+                save_to_db(data=old_config)
+            
+            columns = choose_table_columns(old_config)
+            if columns is not None:
+                old_config.columns_to_display = columns
+                save_to_db(data=old_config, update_if_exists=True)
+                print("Saved columns to be displayed in table.") # Output deleted right afterwards
+
+            criterion = choose_table_sorting_criterion(old_config)
+            if criterion is not None:
+                old_config.sort_by = criterion
+                save_to_db(data=old_config, update_if_exists=True)
+                print("Saved sorting criterion of table.") # Output deleted right afterwards
+
+            if "Total Rating Change" in old_config.columns_to_display:
+                old_config.coloring = choose_table_coloring()
+                save_to_db(data=old_config, update_if_exists=True)
+                print("Saved table coloring preference.")
+            
+            print("Saved table config.")
+
 
         elif cmd == "add":
             if not args:

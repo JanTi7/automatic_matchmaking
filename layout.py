@@ -82,7 +82,7 @@ def save_table_as_html(player_ids: list[str]):
     layout = Layout()
     layout.update(
         Align.center(
-            print_table(player_ids, width=35, include_rd=False, print=False),
+            print_table(player_ids, width=35, print=False),
             vertical="middle",
         )
     )

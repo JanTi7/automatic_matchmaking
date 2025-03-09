@@ -5,6 +5,9 @@ from rich.table import Table
 from rich.align import Align
 from rich.text import Text
 from rich import box
+from rich.prompt import Prompt
+
+
 
 from dao import (
     get_player_from_id,
@@ -12,6 +15,7 @@ from dao import (
     GameResult,
     load_from_db,
     generate_playerid_to_uniquename_map,
+    TableConfig,
 )
 
 
@@ -265,37 +269,31 @@ def viz_players_to_pause(sorted_list: list, num_to_pause):
 
 def print_full_table():
     from dao import get_all_players
-
+    from dao import load_table_config
+    
     print_table([p.player_id for p in get_all_players()])
 
 
-def print_table(list_of_pids, include_rd=True, width=None, print=True, include_details=True, colored_ratingchange=True) -> rich.table:
+def print_table(list_of_pids, width=None, print=True) -> rich.table:
     from dao import generate_playerid_to_uniquename_map
+    from dao import sort_players
+    from dao import TABLE_COLUMN_PLAYER_ATTRIBUTE_MAPPING
+    from dao import load_table_config
+
+    table_config = load_table_config()
 
     id2name = generate_playerid_to_uniquename_map(list_of_pids)
 
     players = [get_player_from_id(pid) for pid in list_of_pids]
-    players.sort(
-        key=lambda p: (
-            p.get_current_rating(),
-            -p.get_rating_snapshot().rd,
-            -ord(p.first_name[0]),
-            -ord(p.first_name[1]),
-        ),
-        reverse=True,
-    )
+    sort_players(players=players, criterion=table_config.sort_by)
 
     table = Table(title="Standings", width=width)
     table.add_column("#", justify="right")
     table.add_column("Name")
-    if include_rd:
-        table.add_column("RD", justify="right")
-    table.add_column("Rating", justify="right")
-    if include_details:
-        table.add_column("Games Played", justify="right")
-        table.add_column("Games Won", justify="right")
-        table.add_column("Total Rating Change", justify="right")
-        table.add_column("Win Percentage", justify="right")
+    table_config.columns_to_display = sorted(table_config.columns_to_display, key=lambda x: (x not in TABLE_COLUMN_PLAYER_ATTRIBUTE_MAPPING, list(TABLE_COLUMN_PLAYER_ATTRIBUTE_MAPPING.keys()).index(x)))
+    for column in table_config.columns_to_display:
+        table.add_column(column, justify="right")
+
 
     for idx, player in enumerate(players):
         full_rating = player.get_rating_snapshot()
@@ -305,19 +303,18 @@ def print_table(list_of_pids, include_rd=True, width=None, print=True, include_d
         else:
             place_str = ""
 
-        data = [place_str, id2name[player.player_id], str(int(full_rating.rating))]
+        data = [place_str, id2name[player.player_id]]
 
-        if include_details:
-            win_percentage = player.games_won /  player.games_played 
-            total_rating_change = player.total_rating_change
-            if colored_ratingchange:
-                total_rating_change_str = f"[green]{total_rating_change:+d}[/green]" if total_rating_change > 0 else f"[red]{total_rating_change:+d}[/red]"
-            else:
-                total_rating_change_str = f"{total_rating_change:+d}"
-            data.extend([str(player.games_played), str(player.games_won), total_rating_change_str, f"{win_percentage:.2%}"])
-        
-        if include_rd:
-            data.insert(2, str(int(full_rating.rd)))
+        for column in table_config.columns_to_display:
+            if column in TABLE_COLUMN_PLAYER_ATTRIBUTE_MAPPING:
+                value = TABLE_COLUMN_PLAYER_ATTRIBUTE_MAPPING[column](player)
+                if column == "Total Rating Change" and table_config.coloring:
+                    value = f"[green]{value:+d}[/green]" if value > 0 else f"[red]{value:+d}[/red]" if value < 0 else f"{value:+d}"
+                if column == "Win Percentage":
+                    value = f"{value:.0%}"
+                if column == "RD":
+                    value = f"{value:.0f}"
+                data.append(str(value))
 
         table.add_row(*data)
 
@@ -326,3 +323,72 @@ def print_table(list_of_pids, include_rd=True, width=None, print=True, include_d
         console.print(table)
 
     return table
+
+def display_selection_prompt(prompt_message:Text, all_choices:list, preselected_choices:list):
+    console = Console()
+    console.clear()
+    text = Text(prompt_message)
+    text.append("\nPress q to discard changes, ", style="bold red")
+    text.append("x to save and exit:\n", style="bold yellow")
+    for i, column in enumerate(all_choices, start=1):
+        if column in preselected_choices:
+            text.append(f"{i}: * {column}\n", style="bold green")
+        else:
+            text.append(f"{i}: {column}\n")
+    console.print(text)
+    return Prompt.ask("Enter your choice")
+
+def choose_table_columns(old_config:TableConfig):
+    from dao import TABLE_COLUMN_PLAYER_ATTRIBUTE_MAPPING
+    console = Console()
+    console.clear()
+    columns = list(TABLE_COLUMN_PLAYER_ATTRIBUTE_MAPPING.keys())
+    columns.remove("Name") # forbidding not to display names
+    selected_columns = old_config.columns_to_display  # Pre-selected columns
+
+    while True:
+        choice = display_selection_prompt(prompt_message="Choose the columns to be displayed in table by pressing its corresponding number. ",
+                                          all_choices=columns,
+                                          preselected_choices=selected_columns)
+        if choice == "q":
+            console.print("Changes discarded.")
+            return None
+        elif choice == "x":
+            return selected_columns
+        elif choice.isdigit() and 1 <= int(choice) <= len(columns):
+            column = columns[int(choice) - 1]
+            if column in selected_columns:
+                selected_columns.remove(column)
+            else:
+                selected_columns.append(column)
+        else:
+            console.print("[bold red]Invalid choice. Please try again.[/bold red]") 
+
+
+def choose_table_sorting_criterion(old_config:TableConfig):
+    console = Console()
+    console.clear()
+    selected_columns = old_config.columns_to_display  # Pre-selected columns
+    sort_by = old_config.sort_by
+
+    while True:
+        choice = display_selection_prompt(prompt_message="Choose the column you would like the players to be sorted by. ",
+                                          all_choices=selected_columns,
+                                          preselected_choices=[sort_by])
+        if choice == "q":
+            console.print("Changes discarded.")
+            return None
+        elif choice == "x":
+            return sort_by
+        elif choice.isdigit() and 1 <= int(choice) <= len(selected_columns):
+            sort_by = selected_columns[int(choice) - 1]
+            
+        else:
+            console.print("[bold red]Invalid choice. Please try again.[/bold red]") 
+            
+def choose_table_coloring():
+    console = Console()
+    console.clear()
+    response = Prompt.ask("Do you wish the Total Rating Change column to be color coded?", choices=["y", "n"], default="n")
+    return response.lower() == "y"
+    

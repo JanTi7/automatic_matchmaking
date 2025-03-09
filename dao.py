@@ -13,6 +13,8 @@ from functools import cache
 from rich.console import Console
 from rich.columns import Columns
 from rich.panel import Panel
+from rich.prompt import Prompt
+
 
 from matching_algos.base_matching_algo import BaseMatchingAlgo
 
@@ -122,6 +124,12 @@ class Player:
     TABLE_NAME: ClassVar[str] = "player"
     player_id: str = field(default_factory=lambda: generate_id(Player.TABLE_NAME))
 
+    @property
+    def win_ratio(self) -> float:
+        if self.games_played == 0:
+            return 0.0
+        return self.games_won / self.games_played
+
     def get_name(self, depth=1, bold_first_name=False):
         fn = f"[b]{self.first_name}[/b]" if bold_first_name else self.first_name
 
@@ -167,6 +175,58 @@ def generate_playerid_to_uniquename_map(list_of_pids: list, bold_first_name=Fals
     tuple_of_pids = tuple(sorted(list_of_pids))
     return _generate_playerid_to_uniquename_map(tuple_of_pids, bold_first_name)
 
+# Define attribute mapping for table columns and the player attribute. 
+TABLE_COLUMN_PLAYER_ATTRIBUTE_MAPPING = {
+    "Name": lambda player: player.get_name(),
+    "RD": lambda player: player.get_rating_snapshot().rd,
+    "Rating": lambda player: player.get_current_rating(),
+    "Games Played": lambda player: player.games_played,
+    "Games Won": lambda player: player.games_won,
+    "Games Lost": lambda player: player.games_lost,
+    "Win Percentage": lambda player: player.win_ratio,
+    "Total Rating Change": lambda player: player.total_rating_change,
+}
+
+# def sort_players(players:list, criterion:str):
+#     if criterion == "Rating":
+#         key_func = lambda p: p.get_current_rating()
+#     elif criterion == "Games Played":
+#         key_func = lambda p: p.games_played
+#     elif criterion == "Games Won":
+#         key_func = lambda p: p.games_won
+#     elif criterion == "Games Lost":
+#         key_func = lambda p: p.games_lost
+#     elif criterion == "Total Rating Change":
+#         key_func = lambda p: p.total_rating_change
+#     elif criterion == "Win Percentage":
+#         key_func = lambda p: p.win_ratio
+#     else:
+#         raise ValueError("Invalid sorting criterion")
+
+#     players.sort(
+#         key=lambda p: (
+#             key_func(p),
+#             -p.get_rating_snapshot().rd,
+#             -ord(p.first_name[0]),
+#             -ord(p.first_name[1]),
+#         ),
+#         reverse=True,
+#     )
+def sort_players(players:list, criterion:str):
+    if criterion not in TABLE_COLUMN_PLAYER_ATTRIBUTE_MAPPING:
+        raise ValueError("Invalid sorting criterion")
+
+    key_func = TABLE_COLUMN_PLAYER_ATTRIBUTE_MAPPING[criterion]
+
+    players.sort(
+        key=lambda p: (
+            key_func(p),
+            -TABLE_COLUMN_PLAYER_ATTRIBUTE_MAPPING["RD"](p),
+            -ord(p.first_name[0]),
+            -ord(p.first_name[1]),
+        ),
+        reverse=True,
+    )
 
 @cache
 def _generate_playerid_to_uniquename_map(tuple_of_pids: tuple, bold_first_name=False):
@@ -751,6 +811,24 @@ class PlayerPool:
             return gameblock, task_output
         else:
             return gameblock
+
+@dataclass
+class TableConfig:
+    TABLE_NAME:ClassVar[str] = "table_config"
+    columns_to_display: list
+    sort_by: str
+    coloring: bool
+
+    table_config_id:str = field(default="table_config_1")
+
+def load_table_config(id_str="table_config_1"):
+    data = load_from_db(id_str)
+    return TableConfig(
+        table_config_id=data.get('table_config_id', 'table_config_1'),
+        columns_to_display=data['columns_to_display'],
+        sort_by=data['sort_by'],
+        coloring=data['coloring']
+    )
 
 
 def save_to_db(data, update_if_exists=False, verbose=False):

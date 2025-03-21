@@ -110,7 +110,7 @@ def manage_the_pool(conf):
                 old_config:TableConfig = load_table_config()
             except IndexError:
                 print("Couldn't find table config in Database. Will be using new one with default values.")
-                old_config = create_default_table_config(save_to_database==True)
+                old_config = create_default_table_config(save_to_database=True)
             
             columns = choose_table_columns(old_config)
             if columns is not None:

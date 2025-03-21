@@ -1,13 +1,12 @@
+import platform
 import rich
-from rich.console import Console
+from rich.console import Console as RichConsole
 from rich.panel import Panel
 from rich.table import Table
 from rich.align import Align
 from rich.text import Text
 from rich import box
 from rich.prompt import Prompt
-
-
 
 from dao import (
     get_player_from_id,
@@ -17,6 +16,17 @@ from dao import (
     generate_playerid_to_uniquename_map,
     TableConfig,
 )
+
+class Console(RichConsole):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.on_windows = True if platform.system() == "Windows" else False
+
+    def clear(self):
+        if self.on_windows:
+            super().print("\n" * super().size.height)
+        else:
+            super().clear()
 
 
 def pid2panel(pid, id2name, rating=None, emph=False):
@@ -265,7 +275,6 @@ def viz_players_to_pause(sorted_list: list, num_to_pause):
         )
 
     console.print(table)
-
 
 def print_full_table():
     from dao import get_all_players

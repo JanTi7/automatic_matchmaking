@@ -102,7 +102,7 @@ def manage_the_pool(conf):
 
         elif cmd == "config_table":
             from dao import TableConfig
-            from dao import load_table_config
+            from dao import load_table_config, create_default_table_config
             from dao import save_to_db
             from viz import choose_table_columns, choose_table_sorting_criterion,choose_table_coloring
 
@@ -110,10 +110,7 @@ def manage_the_pool(conf):
                 old_config:TableConfig = load_table_config()
             except IndexError:
                 print("Couldn't find table config in Database. Will be using new one with default values.")
-                old_config = TableConfig(columns_to_display=["Rating", "Games Played", "Win Percentage"],
-                                           sort_by="Rating",
-                                           coloring=False)
-                save_to_db(data=old_config)
+                old_config = create_default_table_config(save_to_database==True)
             
             columns = choose_table_columns(old_config)
             if columns is not None:

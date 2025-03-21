@@ -14,6 +14,8 @@ def get_db_name(path):
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("excel_file")
+    parser.add_argument("--init_rd", type=int, default=125)
+
 
     args = parser.parse_args()
 
@@ -29,9 +31,10 @@ if __name__ == "__main__":
         print(f"Moving already existing db to {new_path}")
         shutil.move(db_path, new_path)
 
-    from dao import use_database, import_from_excel, set_default_database
+    from dao import use_database, import_from_excel, set_default_database, create_default_table_config
 
     use_database(db_name, create_new=True)
-    import_from_excel(args.excel_file)
+    import_from_excel(args.excel_file, args.init_rd)
 
     set_default_database(db_name)
+    create_default_table_config(save_to_database=True)

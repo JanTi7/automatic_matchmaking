@@ -830,6 +830,15 @@ def load_table_config(id_str="table_config_1"):
         coloring=data['coloring']
     )
 
+def create_default_table_config(save_to_database:bool=True)-> TableConfig:
+    ret = TableConfig(columns_to_display=["Rating", "Games Played", "Win Percentage"],
+                        sort_by="Rating",
+                        coloring=False)
+    if save_to_database:
+        save_to_db(data=ret)
+    return ret
+
+
 
 def save_to_db(data, update_if_exists=False, verbose=False):
     if verbose:
@@ -1060,3 +1069,5 @@ def import_from_excel(filepath, start_rd=125):
         current_cell = current_cell.offset(1, 0)
 
     print(f"Added {players_added} players.")
+
+

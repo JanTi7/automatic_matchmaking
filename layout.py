@@ -35,7 +35,7 @@ def explanation_viz(
     layout["left"].update(
         Align.center(
             print_table(
-                task_output.input.player_ids, width=35, include_rd=False, print=False
+                task_output.input.player_ids, width=35, print=False
             ),
             vertical="middle",
         )
